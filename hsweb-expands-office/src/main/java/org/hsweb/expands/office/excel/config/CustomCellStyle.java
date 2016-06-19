@@ -127,7 +127,7 @@ public class CustomCellStyle {
                 .append(getAlignment()).append(getBorderBottom()).append(getBorderLeft())
                 .append(getBorderRight()).append(getBorderTop()).append(getFontColor())
                 .append(getFormat()).append(getDataType());
-        return String.valueOf(builder.hashCode());
+        return String.valueOf(builder.toString().hashCode());
     }
 
     public Border getBorderTop() {
