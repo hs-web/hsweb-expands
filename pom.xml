@@ -11,6 +11,9 @@
     <modules>
         <module>hsweb-expands-script</module>
         <module>hsweb-expands-office</module>
+        <module>hsweb-expands-phantomjs</module>
+        <module>hsweb-expands-quartz</module>
+        <module>hsweb-expands-request</module>
     </modules>
     <properties>
         <!-- base setting -->
