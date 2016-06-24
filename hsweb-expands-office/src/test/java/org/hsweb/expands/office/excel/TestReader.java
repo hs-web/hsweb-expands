@@ -35,7 +35,18 @@ public class TestReader {
             }
         }
     }
-
+    /**
+     * 测试将excel表格转为map
+     */
+    @Test
+    public void testRead2MulMap() throws Exception {
+        try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
+            List<List<Map<String, Object>>> dataList = ExcelIO.read2MulMap(in);
+            for (List map : dataList) {
+                System.out.println(map);
+            }
+        }
+    }
     /**
      * 有合并行的excel读取示例
      */

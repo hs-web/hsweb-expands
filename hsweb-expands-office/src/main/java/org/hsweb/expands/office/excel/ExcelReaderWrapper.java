@@ -26,6 +26,10 @@ public interface ExcelReaderWrapper<T> {
      */
     T newInstance() throws Exception;
 
+    default T newInstance(int sheet) throws Exception {
+        return newInstance();
+    }
+
     /**
      * 包装一个属性到实例里,每读取一个单元格，会传入这个单元格的信息,进行属性填充
      *

@@ -12,9 +12,11 @@ import org.hsweb.expands.office.excel.support.template.expression.ExpressionRunn
 import org.hsweb.expands.office.excel.support.template.expression.GroovyExpressionRunner;
 import org.hsweb.expands.office.excel.wrapper.BeanWrapper;
 import org.hsweb.expands.office.excel.wrapper.HashMapWrapper;
+import org.hsweb.expands.office.excel.wrapper.MultitermSheetWrapper;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,11 @@ public class ExcelIO {
      */
     public static List<Map<String, Object>> read2Map(InputStream inputStream) throws Exception {
         return read(inputStream, new HashMapWrapper());
+    }
+
+    public static List<List<Map<String, Object>>> read2MulMap(InputStream inputStream) throws Exception {
+        HashMapWrapper[] wrapper = {new HashMapWrapper()};
+        return (List) read(inputStream, wrapper);
     }
 
     /**
@@ -67,6 +74,22 @@ public class ExcelIO {
         return reader.readExcel(inputStream);
     }
 
+    /**
+     * 读取多个sheet为多个list
+     *
+     * @param inputStream excel输入流
+     * @param wrappers    包装器
+     * @return 读取结果
+     * @throws Exception
+     */
+    public static List<List> read(InputStream inputStream, ExcelReaderWrapper[] wrappers) throws Exception {
+        CommonExcelReader reader = new CommonExcelReader();
+        MultitermSheetWrapper wrapper = new MultitermSheetWrapper(wrappers);
+        reader.setWrapper(wrapper);
+        reader.readExcel(inputStream);
+        return wrapper.getData();
+    }
+
 
     /**
      * 写出简单格式excel,第一行为表头,依次为数据
@@ -83,12 +106,20 @@ public class ExcelIO {
         write(outputStream, config);
     }
 
+    public static void write(OutputStream outputStream, List<Header> headers, List<Object> dataList, String[] merge) throws Exception {
+        ExcelWriterConfig config = new ExcelWriterConfig();
+        config.setHeaders(headers);
+        config.setDatas(dataList);
+        config.setMergeColumns(Arrays.asList(merge));
+        write(outputStream, config);
+    }
+
     /**
      * 根据模板导出,基于POI导出
      *
      * @param inputStream  模板输入流
      * @param outputStream 结果输出流
-     * @param var         定义的变量
+     * @param var          定义的变量
      * @throws Exception 导出异常
      */
     public static void writeTemplate(InputStream inputStream, OutputStream outputStream, Map<String, Object> var) throws Exception {

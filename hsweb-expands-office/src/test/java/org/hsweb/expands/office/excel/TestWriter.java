@@ -109,7 +109,7 @@ public class TestWriter {
                     put("grade", "二年级");
                     put("classes", "1班");
                     put("name", "测试11" + t);
-                    put("age", 12.3);
+                    put("age", 12.3333);
                     put("remark", "测试2");
                 }
             });

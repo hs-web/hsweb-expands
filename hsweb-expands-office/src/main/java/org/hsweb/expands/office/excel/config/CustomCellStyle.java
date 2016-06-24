@@ -120,7 +120,6 @@ public class CustomCellStyle {
 
     }
 
-
     public String getCacheKey() {
         StringBuilder builder = new StringBuilder();
         builder.append(getFontName()).append(getAlignment()).append(getVerticalAlignment())

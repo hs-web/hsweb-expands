@@ -38,7 +38,8 @@ public class POIExcelApi implements ExcelApi {
     public void read(InputStream inputStream, ExcelReaderCallBack callBack) throws Exception {
         Workbook wbs = WorkbookFactory.create(inputStream);
         //获取sheets
-        for (int x = 0; x < wbs.getNumberOfSheets(); x++) {
+        int sheetSize = wbs.getNumberOfSheets();
+        for (int x = 0; x < sheetSize; x++) {
             Sheet sheet = wbs.getSheetAt(x);
             // 得到总行数
             int rowNum = sheet.getLastRowNum();

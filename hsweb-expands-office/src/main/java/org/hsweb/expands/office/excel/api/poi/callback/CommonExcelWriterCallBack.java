@@ -1,6 +1,9 @@
 package org.hsweb.expands.office.excel.api.poi.callback;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.hsweb.commons.StringUtils;
@@ -9,7 +12,6 @@ import org.hsweb.expands.office.excel.config.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,6 +23,7 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ExcelWriterConfig config;
+    private final PropertyUtilsBean propertyUtils = BeanUtilsBean.getInstance().getPropertyUtils();
 
     public CommonExcelWriterCallBack(ExcelWriterConfig config) {
         this.config = config;
@@ -77,7 +80,7 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                 Cell cell = processor.nextCell();
                 Object value = null;
                 try {
-                    value = BeanUtils.getProperty(data, header.getField());
+                    value = propertyUtils.getProperty(data, header.getField());
                 } catch (Exception e) {
                 }
                 if (value == null) value = "";
