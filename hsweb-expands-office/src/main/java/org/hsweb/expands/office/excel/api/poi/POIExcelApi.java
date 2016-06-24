@@ -89,6 +89,8 @@ public class POIExcelApi implements ExcelApi {
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 }
+                double value = cell.getNumericCellValue();
+                if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00")) return new Double(value).intValue();
                 return cell.getNumericCellValue();
             case HSSFCell.CELL_TYPE_STRING:
                 return cell.getRichStringCellValue().getString();
