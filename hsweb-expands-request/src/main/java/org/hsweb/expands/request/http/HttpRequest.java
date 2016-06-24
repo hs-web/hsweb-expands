@@ -1,5 +1,9 @@
 package org.hsweb.expands.request.http;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -8,7 +12,11 @@ import java.util.Map;
  * http请求
  * Created by zhouhao on 16-6-23.
  */
-public interface HttpRequest<R> {
+public interface HttpRequest<R> extends Closeable {
+
+    HttpRequest<R> before(Callback<HttpUriRequest> callback);
+
+    HttpRequest<R> after(Callback<HttpResponse> callback);
 
     HttpRequest<R> encode(String encode);
 

@@ -11,9 +11,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.hsweb.expands.request.http.Callback;
 import org.hsweb.expands.request.http.HttpDownloader;
 import org.hsweb.expands.request.http.HttpRequest;
 
@@ -26,18 +28,47 @@ import java.util.stream.Collectors;
 /**
  * Created by zhouhao on 16-6-23.
  */
-public abstract class AbstractHttpClientRequest<R> implements HttpRequest<R> {
+public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
     private Map<String, String> params = new LinkedHashMap<>();
     private Map<String, String> headers = new LinkedHashMap<>();
-    private final String url;
+    private String url;
     private String requestBody;
     private String contentType;
     private String encode = "utf-8";
+    private Callback<HttpUriRequest> before;
+    private Callback<HttpResponse> after;
+    protected HttpClient httpClient;
 
-    protected HttpClientBuilder builder = HttpClientBuilder.create();
-
-    public AbstractHttpClientRequest(String url) {
+    public AbstractHttpRequest(String url) {
         this.url = url;
+        if (httpClient == null) {
+            HttpClientBuilder builder = HttpClientBuilder.create();
+            httpClient = builder.build();
+        }
+    }
+
+    public AbstractHttpRequest(String url, HttpClient client) {
+        this.url = url;
+        this.httpClient = client;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (httpClient != null && httpClient instanceof CloseableHttpClient) {
+            ((CloseableHttpClient) httpClient).close();
+        }
+    }
+
+    @Override
+    public HttpRequest<R> before(Callback<HttpUriRequest> callback) {
+        this.before = callback;
+        return this;
+    }
+
+    @Override
+    public HttpRequest<R> after(Callback<HttpResponse> callback) {
+        this.after = callback;
+        return this;
     }
 
     @Override
@@ -93,6 +124,18 @@ public abstract class AbstractHttpClientRequest<R> implements HttpRequest<R> {
     public HttpRequest<R> cookie(String cookie) {
         header("Cookie", cookie);
         return this;
+    }
+
+    protected void doBefore(HttpUriRequest request) {
+        if (before != null) {
+            before.accept(request);
+        }
+    }
+
+    protected void doAfter(HttpResponse response) {
+        if (after != null) {
+            after.accept(response);
+        }
     }
 
     @Override
@@ -219,15 +262,11 @@ public abstract class AbstractHttpClientRequest<R> implements HttpRequest<R> {
         headers.forEach(request::setHeader);
     }
 
-    protected HttpClient createClient() {
-        HttpClient httpClient = builder.build();
-        return httpClient;
-    }
-
     protected HttpResponse execute(HttpRequestBase request) throws IOException {
         putHeader(request);
-        HttpClient httpClient = createClient();
+        doBefore(request);
         HttpResponse response = httpClient.execute(request);
+        doAfter(response);
         return response;
     }
 

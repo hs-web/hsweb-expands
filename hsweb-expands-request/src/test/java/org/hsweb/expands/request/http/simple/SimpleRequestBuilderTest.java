@@ -3,6 +3,9 @@ package org.hsweb.expands.request.http.simple;
 
 import org.hsweb.expands.request.RequestBuilder;
 import org.hsweb.expands.request.SimpleRequestBuilder;
+import org.hsweb.expands.request.ftp.FtpRequest;
+import org.hsweb.expands.request.http.HttpRequest;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,10 +14,25 @@ import java.io.IOException;
  * Created by zhouhao on 16-6-23.
  */
 public class SimpleRequestBuilderTest {
-    @Test
-    public void testSimple() throws IOException {
-        RequestBuilder builder = new SimpleRequestBuilder();
-        String str = builder.http("http://www.baidu.com").get();
-        System.out.println(str);
+
+    RequestBuilder builder;
+
+    @Before
+    public void setup() {
+        builder = new SimpleRequestBuilder();
     }
+
+    @Test
+    public void testHttp() throws IOException {
+        HttpRequest<String> request = builder.http("www.baidu.com");
+        System.out.println(request.get());
+    }
+
+    @Test
+    public void testFtp() throws IOException {
+        FtpRequest request = builder.ftp("192.168.2.142", 2121);
+        request.encode("gbk");
+        request.ls().forEach(System.out::println);
+    }
+
 }

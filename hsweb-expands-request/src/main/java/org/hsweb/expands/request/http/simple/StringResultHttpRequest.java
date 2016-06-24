@@ -9,8 +9,8 @@ import java.io.IOException;
 /**
  * Created by zhouhao on 16-6-23.
  */
-public class StringResultHttpClientRequest extends AbstractHttpClientRequest<String> {
-    public StringResultHttpClientRequest(String url) {
+public class StringResultHttpRequest extends AbstractHttpRequest<String> {
+    public StringResultHttpRequest(String url) {
         super(url);
     }
 
