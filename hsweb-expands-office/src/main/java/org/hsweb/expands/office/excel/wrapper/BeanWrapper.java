@@ -27,6 +27,7 @@ public class BeanWrapper<T> extends AbstractWrapper<T> {
     @Override
     public void wrapper(T instance, String header, Object value) {
         if (header == null || "".equals(header)) return;
+        header=header.trim();
         header = headerMapper(header);
         try {
             PropertyDescriptor propertyDescriptor = BeanUtilsBean.getInstance()

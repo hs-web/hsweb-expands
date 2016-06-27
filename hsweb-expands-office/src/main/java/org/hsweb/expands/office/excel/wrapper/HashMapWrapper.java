@@ -21,6 +21,7 @@ public class HashMapWrapper extends AbstractWrapper<Map<String, Object>> {
         if (header == null || "".equals(header)) {
             header = "null." + nullHeaderSize++;
         }
+        header=header.trim();
         instance.put(headerMapper(header), value);
     }
 
