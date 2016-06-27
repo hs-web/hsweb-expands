@@ -23,7 +23,11 @@ public final class DynamicScriptEngineFactory {
         map.put("groovy", new GroovyEngine());
         map.put("ruby", new RubyScriptEngine());
         map.put("python", new PythonScriptEngine());
-        map.put("java", new JavaEngine());
+        try {
+            map.put("java", new JavaEngine());
+        } catch (Exception e) {
+
+        }
         try {
             Class.forName("org.springframework.expression.ExpressionParser");
             map.put("spel", new SpElEngine());

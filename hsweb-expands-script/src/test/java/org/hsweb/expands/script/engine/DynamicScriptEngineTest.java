@@ -20,7 +20,7 @@ public class DynamicScriptEngineTest {
                 "}");
         ExecuteResult result = engine.execute("111");
         Map<String, Object> param = new HashMap<>();
-        ((Class) result.getResult()).getMethod("test",Map.class).invoke(null, param);
+        ((Class) result.getResult()).getMethod("test", Map.class).invoke(null, param);
         Assert.assertEquals("1", param.get("test"));
 
         engine.compile("111", "package test.myTest;" +
@@ -67,7 +67,6 @@ public class DynamicScriptEngineTest {
         ExecuteResult result = engine.execute("test");
         Assert.assertEquals(result.getResult(), 0);
     }
-
 
 
 }

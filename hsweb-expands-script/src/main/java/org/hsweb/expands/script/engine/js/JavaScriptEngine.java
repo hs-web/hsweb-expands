@@ -19,13 +19,6 @@ public class JavaScriptEngine extends CommonScriptEngine {
     @Override
     public boolean compile(String id, String code) throws Exception {
         code = StringUtils.concat("(function(){", code, "\n})();");
-        if (logger.isDebugEnabled()) {
-            logger.debug("compile {} {} : {}", getScriptName(), id, code);
-        }
-        if (compilable == null)
-            init();
-        CompiledScript compiledScript = compilable.compile(code);
-        scriptBase.put(id, compiledScript);
-        return true;
+        return super.compile(id,code);
     }
 }

@@ -1,54 +1,47 @@
 package org.hsweb.expands.script.engine.java;
 
 import org.hsweb.commons.ClassUtils;
+import org.hsweb.commons.MD5;
 import org.hsweb.commons.StringUtils;
 import org.hsweb.commons.file.FileUtils;
-import org.hsweb.expands.script.engine.DynamicScriptEngine;
-import org.hsweb.expands.script.engine.ExecuteResult;
-import org.hsweb.expands.script.engine.common.listener.CommonScriptExecuteListener;
-import org.hsweb.expands.script.engine.listener.ExecuteEvent;
-import org.hsweb.expands.script.engine.listener.ScriptExecuteListener;
+import org.hsweb.expands.script.engine.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.ClassLoaderUtil;
 
 import javax.script.ScriptException;
 import javax.tools.*;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by 浩 on 2015-10-27 0027.
  */
-public class JavaEngine implements DynamicScriptEngine {
+public class JavaEngine extends ListenerSupportEngine {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
     private String savePath = null;
     private String classpath = "";
-    private Map<String, Class> cache = new ConcurrentHashMap<>();
-    public static Map<String, Executor> executorCache = new ConcurrentHashMap<>();
-    protected Map<String, CommonScriptExecuteListener> listenerMap = new HashMap<>();
+    private Map<String, JavaCodeContext> cache = new ConcurrentHashMap<>();
 
-    public JavaEngine() {
+    private URL[] loaderUrl;
+
+    public JavaEngine() throws Exception {
         savePath = System.getProperty("java.io.tmpdir").concat("/org/hsweb/java/engine/");
         new File(savePath + "src").mkdirs();
         new File(savePath + "bin").mkdirs();
         classpath = System.getProperty("java.class.path");
+        loaderUrl = new URL[]{new File(savePath + "bin").toURI().toURL()};
     }
 
     @Override
     public void init(String... contents) throws Exception {
 
-    }
-
-    public static void main(String[] args) {
-        String name = StringUtils.matcherFirst("class\\s+([\\w\\d$_]+)s*", "public class Test{}//");
-        System.out.println(name);
     }
 
     public String getClassName(String code) {
@@ -65,9 +58,6 @@ public class JavaEngine implements DynamicScriptEngine {
 
     @Override
     public boolean compile(String id, String code) throws Exception {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        List<JavaFileObject> jfiles = new ArrayList<>();
         String name = getClassName(code);
         String packageName = getPackage(code);
         if (!StringUtils.isNullOrEmpty(packageName)) {
@@ -77,6 +67,10 @@ public class JavaEngine implements DynamicScriptEngine {
         File file = new File(fileName);
         if (file.exists()) file.delete();
         FileUtils.writeString2File(code, fileName, "utf-8");
+
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        List<JavaFileObject> jfiles = new ArrayList<>();
         StandardJavaFileManager fm = compiler.getStandardFileManager(null, null, null);
         jfiles.add(new CharSequenceJavaFileObject(savePath, name, code));
         List<String> options = new ArrayList<String>();
@@ -87,21 +81,20 @@ public class JavaEngine implements DynamicScriptEngine {
         options.add("-classpath");
         options.add(classpath);
         if (logger.isDebugEnabled()) {
-            logger.debug("javac [{}] -> {}",fileName, options.stream().reduce((s, s2) -> s + " " + s2).get());
+            logger.debug("javac [{}] -> {}", fileName, options.stream().reduce((s, s2) -> s + " " + s2).get());
             logger.debug(code);
         }
         JavaCompiler.CompilationTask task = compiler.getTask(null, fm, diagnostics, options, null, jfiles);
         boolean success = task.call();
         if (success) {
-            DynamicClassLoader dynamicClassLoader = new DynamicClassLoader(new URL[]{
-                    new File(savePath + "bin").toURI().toURL()
-            }, JavaEngine.class.getClassLoader());
+            DynamicClassLoader dynamicClassLoader = new DynamicClassLoader(loaderUrl, JavaEngine.class.getClassLoader());
             Class<?> clazz = dynamicClassLoader.loadClass(name);
-            cache.put(id, clazz);
-            executorCache.remove(id);
+            Executor executor = null;
             if (ClassUtils.instanceOf(clazz, Executor.class)) {
-                executorCache.put(id, (Executor) clazz.newInstance());
+                executor = (Executor) clazz.newInstance();
             }
+            JavaCodeContext context = new JavaCodeContext(id, MD5.defaultEncode(code), clazz, executor);
+            cache.put(id, context);
             return clazz != null;
         } else {
             StringBuilder builder = new StringBuilder();
@@ -114,57 +107,71 @@ public class JavaEngine implements DynamicScriptEngine {
 
     @Override
     public ExecuteResult execute(String id) {
-        return execute(id, new HashMap<String, Object>());
+        return execute(id, new HashMap<>());
     }
 
     @Override
     public ExecuteResult execute(String id, Map<String, Object> param) {
         long startTime = System.currentTimeMillis();
         ExecuteResult result = new ExecuteResult();
+        JavaCodeContext context = cache.get(id);
         try {
-            Executor executor = executorCache.get(id);
-            if (executor != null) {
-                result.setResult(executor.execute(param));
-                result.setSuccess(true);
-            } else {
-                Class clazz = cache.get(id);
-                if (clazz == null) {
-                    result.setSuccess(false);
-                    result.setResult(null);
-                    result.setMessage(String.format("class(%s): %s not found!", id, "java"));
+            if (context != null) {
+                doListenerBefore(context);
+                Executor executor = context.getExecutor();
+                Class clazz = context.getCodeClass();
+                if (executor != null) {
+                    result.setResult(executor.execute(param));
+                    result.setSuccess(true);
                 } else {
-                    result.setSuccess(false);
+                    result.setSuccess(true);
                     result.setResult(clazz);
-                    result.setMessage(String.format("class(%s): %s found! but not a executor;", id, "java"));
                 }
+            } else {
+                result.setSuccess(false);
+                result.setResult(null);
+                result.setMessage(String.format("class(%s): %s not found!", id, "java"));
             }
         } catch (Exception e) {
             result.setException(e);
         }
         result.setUseTime(System.currentTimeMillis() - startTime);
-        if (listenerMap.size() > 0)
-            for (CommonScriptExecuteListener listener : listenerMap.values()) {
-                listener.onExecute(new ExecuteEvent(ExecuteEvent.TYPE_EXECUTE, id, result));
-            }
+        doListenerAfter(context, result);
         return result;
     }
 
     @Override
-    public <T extends ScriptExecuteListener> T addListener(T listener) throws Exception {
-        if (listener instanceof CommonScriptExecuteListener)
-            listenerMap.put(listener.getName(), (CommonScriptExecuteListener) listener);
-        return listener;
-    }
-
-    @Override
-    public void removeListener(String name) throws Exception {
-        listenerMap.remove(name);
+    public boolean remove(String id) {
+        return cache.remove(id) != null;
     }
 
     @Override
     public boolean compiled(String id) {
-        return cache.get(id) != null;
+        return cache.containsKey(id);
     }
 
+    @Override
+    public ScriptContext getContext(String id) {
+        return cache.get(id);
+    }
+
+    protected class JavaCodeContext extends ScriptContext {
+        private Class codeClass;
+        private Executor executor;
+
+        public JavaCodeContext(String id, String md5, Class codeClass, Executor executor) {
+            super(id, md5);
+            this.codeClass = codeClass;
+            this.executor = executor;
+        }
+
+        public Class getCodeClass() {
+            return codeClass;
+        }
+
+        public Executor getExecutor() {
+            return executor;
+        }
+    }
 
 }

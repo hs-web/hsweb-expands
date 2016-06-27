@@ -1,8 +1,6 @@
 package org.hsweb.expands.script.engine;
 
 
-import org.hsweb.expands.script.engine.listener.ScriptExecuteListener;
-
 import java.util.Map;
 
 /**
@@ -29,6 +27,12 @@ public interface DynamicScriptEngine {
      */
     boolean compile(String id, String code) throws Exception;
 
+    ScriptContext getContext(String id);
+
+    boolean compiled(String id);
+
+    boolean remove(String id);
+
     /**
      * 执行编译好的脚本
      *
@@ -40,22 +44,6 @@ public interface DynamicScriptEngine {
 
     ExecuteResult execute(String id);
 
-    /**
-     * 添加一个监听器
-     *
-     * @param listener 监听器实例
-     * @return 监听器实例
-     * @throws Exception 异常信息
-     */
-    <T extends ScriptExecuteListener> T addListener(T listener) throws Exception;
+    void addListener(ScriptListener scriptListener);
 
-    /**
-     * 删除一个监听器
-     *
-     * @param name 监听器名称
-     * @throws Exception 异常信息
-     */
-    void removeListener(String name) throws Exception;
-
-    boolean compiled(String id) ;
 }

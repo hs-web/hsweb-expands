@@ -1,10 +1,10 @@
 package org.hsweb.expands.script.engine.SpEL;
 
+import org.hsweb.commons.MD5;
 import org.hsweb.expands.script.engine.DynamicScriptEngine;
 import org.hsweb.expands.script.engine.ExecuteResult;
-import org.hsweb.expands.script.engine.common.listener.CommonScriptExecuteListener;
-import org.hsweb.expands.script.engine.listener.ExecuteEvent;
-import org.hsweb.expands.script.engine.listener.ScriptExecuteListener;
+import org.hsweb.expands.script.engine.ListenerSupportEngine;
+import org.hsweb.expands.script.engine.ScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.EvaluationContext;
@@ -20,18 +20,16 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by 浩 on 2015-10-28 0028.
  */
-public class SpElEngine implements DynamicScriptEngine {
+public class SpElEngine extends ListenerSupportEngine {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected final Map<String, Expression> base = new ConcurrentHashMap<>();
+    protected final Map<String, SpelScriptContext> cache = new ConcurrentHashMap<>();
 
     protected final ExpressionParser parser = new SpelExpressionParser();
 
-    protected static Map<String, CommonScriptExecuteListener> listenerMap = new HashMap<>();
-
     @Override
     public boolean compiled(String id) {
-        return base.containsKey(id);
+        return cache.containsKey(id);
     }
 
     @Override
@@ -39,17 +37,27 @@ public class SpElEngine implements DynamicScriptEngine {
     }
 
     @Override
+    public boolean remove(String id) {
+        return cache.remove(id) != null;
+    }
+
+    @Override
+    public ScriptContext getContext(String id) {
+        return cache.get(id);
+    }
+
+    @Override
     public boolean compile(String id, String code) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("compile SpEL {} : {}", id, code);
         }
-        base.put(id, parser.parseExpression(code));
+        cache.put(id, new SpelScriptContext(id, MD5.defaultEncode(code), parser.parseExpression(code)));
         return false;
     }
 
     @Override
     public ExecuteResult execute(String id) {
-        return execute(id, new HashMap<String, Object>());
+        return execute(id, new HashMap<>());
     }
 
     @Override
@@ -59,14 +67,16 @@ public class SpElEngine implements DynamicScriptEngine {
         }
         ExecuteResult result = new ExecuteResult();
         long start = System.currentTimeMillis();
+        SpelScriptContext scriptContext = cache.get(id);
         try {
-            Expression expression = base.get(id);
-            if (id != null) {
+            if (scriptContext != null) {
+                doListenerBefore(scriptContext);
+                scriptContext = cache.get(id);
                 EvaluationContext context = new StandardEvaluationContext(param);
                 for (Map.Entry<String, Object> entry : param.entrySet()) {
                     context.setVariable(entry.getKey(), entry.getValue());
                 }
-                Object obj = expression.getValue(context);
+                Object obj = scriptContext.getScript().getValue(context);
                 result.setSuccess(true);
                 result.setResult(obj);
             } else {
@@ -80,22 +90,21 @@ public class SpElEngine implements DynamicScriptEngine {
             logger.error("execute SpEL error", e);
             result.setException(e);
         }
-        for (CommonScriptExecuteListener listener : listenerMap.values()) {
-            listener.onExecute(new ExecuteEvent(ExecuteEvent.TYPE_EXECUTE, id, result));
-        }
+        doListenerAfter(scriptContext, result);
         return result;
     }
 
-    @Override
-    public <T extends ScriptExecuteListener> T addListener(T listener) throws Exception {
-        if (listener instanceof CommonScriptExecuteListener)
-            listenerMap.put(listener.getName(), (CommonScriptExecuteListener) listener);
-        return listener;
-    }
+    class SpelScriptContext extends ScriptContext {
+        private Expression script;
 
-    @Override
-    public void removeListener(String name) throws Exception {
-        listenerMap.remove(name);
+        public SpelScriptContext(String id, String md5, Expression script) {
+            super(id, md5);
+            this.script = script;
+        }
+
+        public Expression getScript() {
+            return script;
+        }
     }
 
 }

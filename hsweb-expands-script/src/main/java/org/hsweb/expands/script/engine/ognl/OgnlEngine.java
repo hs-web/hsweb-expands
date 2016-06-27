@@ -1,11 +1,8 @@
 package org.hsweb.expands.script.engine.ognl;
 
 import ognl.Ognl;
-import org.hsweb.expands.script.engine.DynamicScriptEngine;
-import org.hsweb.expands.script.engine.ExecuteResult;
-import org.hsweb.expands.script.engine.common.listener.CommonScriptExecuteListener;
-import org.hsweb.expands.script.engine.listener.ExecuteEvent;
-import org.hsweb.expands.script.engine.listener.ScriptExecuteListener;
+import org.hsweb.commons.MD5;
+import org.hsweb.expands.script.engine.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,16 +13,24 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by 浩 on 2015-10-28 0028.
  */
-public class OgnlEngine implements DynamicScriptEngine {
+public class OgnlEngine extends ListenerSupportEngine {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected final Map<String, Object> base = new ConcurrentHashMap<>();
-
-    protected static Map<String, CommonScriptExecuteListener> listenerMap = new HashMap<>();
+    protected final Map<String, OgnlScriptContext> cache = new ConcurrentHashMap<>();
 
     @Override
     public boolean compiled(String id) {
-        return base.containsKey(id);
+        return cache.containsKey(id);
+    }
+
+    @Override
+    public ScriptContext getContext(String id) {
+        return cache.get(id);
+    }
+
+    @Override
+    public boolean remove(String id) {
+        return cache.remove(id) != null;
     }
 
     @Override
@@ -34,7 +39,7 @@ public class OgnlEngine implements DynamicScriptEngine {
 
     @Override
     public ExecuteResult execute(String id) {
-        return execute(id, new HashMap<String, Object>());
+        return execute(id, new HashMap<>());
     }
 
     @Override
@@ -42,7 +47,7 @@ public class OgnlEngine implements DynamicScriptEngine {
         if (logger.isDebugEnabled()) {
             logger.debug("compile Ognl {} : {}", id, code);
         }
-        base.put(id, Ognl.parseExpression(code));
+        cache.put(id, new OgnlScriptContext(id, MD5.defaultEncode(code), Ognl.parseExpression(code)));
         return false;
     }
 
@@ -53,11 +58,12 @@ public class OgnlEngine implements DynamicScriptEngine {
         }
         ExecuteResult result = new ExecuteResult();
         long start = System.currentTimeMillis();
+        OgnlScriptContext scriptContext = cache.get(id);
         try {
-            Object expression = base.get(id);
-            if (id != null) {
-
-                Object obj = Ognl.getValue(expression, param, param);
+            if (scriptContext != null) {
+                doListenerBefore(scriptContext);
+                scriptContext = cache.get(id);
+                Object obj = Ognl.getValue(scriptContext.getScript(), param, param);
                 result.setSuccess(true);
                 result.setResult(obj);
             } else {
@@ -71,22 +77,20 @@ public class OgnlEngine implements DynamicScriptEngine {
             logger.error("execute SpEL error", e);
             result.setException(e);
         }
-        for (CommonScriptExecuteListener listener : listenerMap.values()) {
-            listener.onExecute(new ExecuteEvent(ExecuteEvent.TYPE_EXECUTE, id, result));
-        }
+        doListenerAfter(scriptContext, result);
         return result;
     }
 
-    @Override
-    public <T extends ScriptExecuteListener> T addListener(T listener) throws Exception {
-        if (listener instanceof CommonScriptExecuteListener)
-            listenerMap.put(listener.getName(), (CommonScriptExecuteListener) listener);
-        return listener;
-    }
+    class OgnlScriptContext extends ScriptContext {
+        private Object script;
 
-    @Override
-    public void removeListener(String name) throws Exception {
-        listenerMap.remove(name);
-    }
+        public OgnlScriptContext(String id, String md5, Object script) {
+            super(id, md5);
+            this.script = script;
+        }
 
+        public Object getScript() {
+            return script;
+        }
+    }
 }
