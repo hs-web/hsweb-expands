@@ -31,16 +31,17 @@ public class ShellTest {
     }
 
     @Test
-    public void testShell() throws Exception {
-        Shell.build("bash " + FileUtils.getResourceAsFile("test.sh").getAbsolutePath())
+    public void testShellFile() throws Exception {
+        Shell.build("bash", FileUtils.getResourceAsFile("test.sh").getAbsolutePath())
                 .onProcess((line, helper) -> System.out.println(line))
                 .exec();
     }
 
     @Test
     public void testText() throws Exception {
-        Shell.buildText("echo helloShell\n" +"ls")
+        Shell.buildText("echo helloShell \n ls").dir("/")
                 .onProcess((line, helper) -> System.out.println(line))
                 .exec();
     }
+
 }
