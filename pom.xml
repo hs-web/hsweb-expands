@@ -14,6 +14,7 @@
         <module>hsweb-expands-phantomjs</module>
         <module>hsweb-expands-quartz</module>
         <module>hsweb-expands-request</module>
+        <module>hsweb-expands-shell</module>
     </modules>
     <properties>
         <!-- base setting -->
@@ -116,7 +117,6 @@
                 <artifactId>spring-expression</artifactId>
                 <version>4.0.6.RELEASE</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
