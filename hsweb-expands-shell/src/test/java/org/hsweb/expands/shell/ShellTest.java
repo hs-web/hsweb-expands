@@ -15,10 +15,10 @@ public class ShellTest {
     @Test
     public void testPing() throws Exception {
         int[] count = new int[1];
-        Shell.build("ping www.baidu.com")
+        Shell.build("ping", "www.baidu.com")
                 .onProcess((line, helper) -> {
                     System.out.println(line);
-                    if (count[0]++ > 10) helper.shutdown();
+                    if (count[0]++ > 10) helper.kill();
                 })
                 .exec();
     }
