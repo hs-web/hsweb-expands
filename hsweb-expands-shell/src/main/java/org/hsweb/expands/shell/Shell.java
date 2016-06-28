@@ -1,5 +1,8 @@
 package org.hsweb.expands.shell;
 
+import org.hsweb.expands.shell.build.LinuxShellBuilder;
+import org.hsweb.expands.shell.build.WindowsShellBuilder;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +21,7 @@ public class Shell {
     private static final String DEFAULT_ENCODE;
 
     private String encode;
-    
+
     private List<String> env;
 
     private List<String> commands;
@@ -26,6 +29,8 @@ public class Shell {
     private List<Callback> processCallback = new LinkedList<>();
 
     private List<Callback> errorCallback = new LinkedList<>();
+
+    private static ShellBuilder shellBuilder;
 
     private boolean shutdown = false;
 
@@ -37,8 +42,10 @@ public class Shell {
         String os = System.getProperty("os.name");
         if ("windows".equals(os.toLowerCase())) {
             DEFAULT_ENCODE = "gbk";
+            shellBuilder = new WindowsShellBuilder();
         } else {
             DEFAULT_ENCODE = "utf-8";
+            shellBuilder = new LinuxShellBuilder();
         }
     }
 
@@ -52,6 +59,10 @@ public class Shell {
 
     public static Shell build(String command, String... more) {
         return new Shell(command, more);
+    }
+
+    public static Shell buildText(String text) throws Exception {
+        return shellBuilder.buildTextShell(text);
     }
 
     public Shell dir(File file) {

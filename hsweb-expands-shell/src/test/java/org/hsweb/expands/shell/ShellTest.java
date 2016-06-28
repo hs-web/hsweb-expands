@@ -1,6 +1,9 @@
 package org.hsweb.expands.shell;
 
+import org.hsweb.commons.file.FileUtils;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.junit.Assert.*;
 
@@ -10,15 +13,37 @@ import static org.junit.Assert.*;
 public class ShellTest {
 
     @Test
-    public void testExec() throws Exception {
+    public void testPing() throws Exception {
         int[] count = new int[1];
         Shell.build("ping www.baidu.com")
                 .onProcess((line, helper) -> {
                     System.out.println(line);
-                    count[0]++;
-                    //读取到输入10行后退出
-                    if (count[0] > 10) helper.shutdown();
+                    if (count[0]++ > 10) helper.shutdown();
                 })
+                .exec();
+    }
+
+    @Test
+    public void testLs() throws Exception {
+        Shell.build("ls")
+                .onProcess((line, helper) -> System.out.println(line))
+                .exec();
+    }
+
+    @Test
+    public void testShell() throws Exception {
+        Shell.build("bash " + FileUtils.getResourceAsFile("test.sh").getAbsolutePath())
+                .onProcess((line, helper) -> System.out.println(line))
+                .exec();
+    }
+
+    @Test
+    public void testText() throws Exception {
+        Shell.buildText(
+                "echo helloShell\n" +
+                        "ls")
+                .onProcess((line, helper) -> System.out.println(line))
+                .onError((line1, helper1) -> System.out.println(line1))
                 .exec();
     }
 }
