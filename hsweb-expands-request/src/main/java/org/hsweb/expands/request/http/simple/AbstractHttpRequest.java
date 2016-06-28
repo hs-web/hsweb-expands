@@ -7,19 +7,31 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hsweb.expands.request.http.Callback;
 import org.hsweb.expands.request.http.HttpDownloader;
 import org.hsweb.expands.request.http.HttpRequest;
+import org.hsweb.expands.request.http.Response;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.*;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * Created by zhouhao on 16-6-23.
  */
-public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
+public abstract class AbstractHttpRequest implements HttpRequest {
     private Map<String, String> params = new LinkedHashMap<>();
     private Map<String, String> headers = new LinkedHashMap<>();
     private String url;
@@ -60,68 +72,68 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
     }
 
     @Override
-    public HttpRequest<R> before(Callback<HttpUriRequest> callback) {
+    public HttpRequest before(Callback<HttpUriRequest> callback) {
         this.before = callback;
         return this;
     }
 
     @Override
-    public HttpRequest<R> after(Callback<HttpResponse> callback) {
+    public HttpRequest after(Callback<HttpResponse> callback) {
         this.after = callback;
         return this;
     }
 
     @Override
-    public HttpRequest<R> resultAsJsonString() {
+    public HttpRequest resultAsJsonString() {
         header("Accept", "application/json");
         return this;
     }
 
     @Override
-    public HttpRequest<R> requestBody(String body) {
+    public HttpRequest requestBody(String body) {
         contentType("application/json");
         this.requestBody = body;
         return this;
     }
 
     @Override
-    public HttpRequest<R> encode(String encode) {
+    public HttpRequest encode(String encode) {
         this.encode = encode;
         return this;
     }
 
     @Override
-    public HttpRequest<R> contentType(String type) {
+    public HttpRequest contentType(String type) {
         this.contentType = type;
         return this;
     }
 
     @Override
-    public HttpRequest<R> param(String name, String value) {
+    public HttpRequest param(String name, String value) {
         this.params.put(name, value);
         return this;
     }
 
     @Override
-    public HttpRequest<R> params(Map<String, String> params) {
+    public HttpRequest params(Map<String, String> params) {
         this.params.putAll(params);
         return this;
     }
 
     @Override
-    public HttpRequest<R> header(String name, String value) {
+    public HttpRequest header(String name, String value) {
         this.headers.put(name, value);
         return this;
     }
 
     @Override
-    public HttpRequest<R> headers(Map<String, String> header) {
+    public HttpRequest headers(Map<String, String> header) {
         this.headers.putAll(header);
         return this;
     }
 
     @Override
-    public HttpRequest<R> cookie(String cookie) {
+    public HttpRequest cookie(String cookie) {
         header("Cookie", cookie);
         return this;
     }
@@ -139,12 +151,12 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
     }
 
     @Override
-    public HttpDownloader<R> download() throws IOException {
-        return new HttpDownloader<R>() {
+    public HttpDownloader download() throws IOException {
+        return new HttpDownloader() {
             private HttpResponse response;
 
             @Override
-            public HttpDownloader<R> get() throws IOException {
+            public HttpDownloader get() throws IOException {
                 List<NameValuePair> nameValuePair = params.entrySet()
                         .stream().map(stringStringEntry ->
                                 new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
@@ -158,7 +170,7 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
             }
 
             @Override
-            public HttpDownloader<R> post() throws IOException {
+            public HttpDownloader post() throws IOException {
                 HttpPost post = new HttpPost(url);
                 if (requestBody != null)
                     post.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
@@ -175,7 +187,7 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
             }
 
             @Override
-            public R write(File file) throws IOException {
+            public Response write(File file) throws IOException {
                 if (response == null) get();
                 if (file.isFile()) {
                     return write(new FileOutputStream(file));
@@ -211,7 +223,7 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
             }
 
             @Override
-            public R write(OutputStream outputStream) throws IOException {
+            public Response write(OutputStream outputStream) throws IOException {
                 if (response == null) get();
                 HttpEntity entity = response.getEntity();
                 if (response.getStatusLine().getStatusCode() == 200) {
@@ -243,12 +255,12 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
 
 
     @Override
-    public R upload(File file) throws IOException {
+    public Response upload(File file) throws IOException {
         return upload("file", file);
     }
 
     @Override
-    public R upload(String paramName, File file) throws IOException {
+    public Response upload(String paramName, File file) throws IOException {
         HttpPost post = new HttpPost(url);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                 .addPart("paramName", new FileBody(file));
@@ -271,7 +283,7 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
     }
 
     @Override
-    public R get() throws IOException {
+    public Response get() throws IOException {
         List<NameValuePair> nameValuePair = params.entrySet()
                 .stream().map(stringStringEntry ->
                         new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
@@ -286,7 +298,7 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
 
 
     @Override
-    public R post() throws IOException {
+    public Response post() throws IOException {
         HttpPost post = new HttpPost(url);
         if (requestBody != null)
             post.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
@@ -303,7 +315,7 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
     }
 
     @Override
-    public R put() throws IOException {
+    public Response put() throws IOException {
         HttpPut put = new HttpPut(url);
         if (requestBody != null)
             put.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
@@ -320,14 +332,14 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
     }
 
     @Override
-    public R delete() throws IOException {
+    public Response delete() throws IOException {
         HttpDelete delete = new HttpDelete(url);
         HttpResponse response = execute(delete);
         return getResultValue(response);
     }
 
     @Override
-    public R patch() throws IOException {
+    public Response patch() throws IOException {
         HttpPatch delete = new HttpPatch(url);
         if (requestBody != null)
             delete.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
@@ -342,6 +354,6 @@ public abstract class AbstractHttpRequest<R> implements HttpRequest<R> {
         return getResultValue(execute(delete));
     }
 
-    protected abstract R getResultValue(HttpResponse res) throws IOException;
+    protected abstract Response getResultValue(HttpResponse res) throws IOException;
 
 }

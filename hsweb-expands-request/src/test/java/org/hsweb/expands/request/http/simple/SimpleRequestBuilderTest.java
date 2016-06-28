@@ -5,6 +5,7 @@ import org.hsweb.expands.request.RequestBuilder;
 import org.hsweb.expands.request.SimpleRequestBuilder;
 import org.hsweb.expands.request.ftp.FtpRequest;
 import org.hsweb.expands.request.http.HttpRequest;
+import org.hsweb.expands.request.http.Response;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,8 +25,10 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testHttp() throws IOException {
-        HttpRequest<String> request = builder.http("www.baidu.com");
-        System.out.println(request.get());
+        HttpRequest request = builder.http("192.168.2.195:8888/user");
+        Response response=request.get();
+        System.out.println(response.getCode());
+        System.out.println(response.asString());
     }
 
     @Test
@@ -34,5 +37,6 @@ public class SimpleRequestBuilderTest {
         request.encode("gbk");
         request.ls().forEach(System.out::println);
     }
+
 
 }

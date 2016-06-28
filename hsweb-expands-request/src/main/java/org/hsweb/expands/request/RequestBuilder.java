@@ -9,7 +9,9 @@ import java.io.IOException;
  * Created by zhouhao on 16-6-23.
  */
 public interface RequestBuilder {
-    HttpRequest<String> http(String url);
+    HttpRequest http(String url);
+
+    HttpRequest https(String url);
 
     FtpRequest ftp(String host, int port, String username, String password) throws IOException;
 

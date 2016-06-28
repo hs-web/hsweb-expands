@@ -12,43 +12,43 @@ import java.util.Map;
  * http请求
  * Created by zhouhao on 16-6-23.
  */
-public interface HttpRequest<R> extends Closeable {
+public interface HttpRequest extends Closeable {
 
-    HttpRequest<R> before(Callback<HttpUriRequest> callback);
+    HttpRequest before(Callback<HttpUriRequest> callback);
 
-    HttpRequest<R> after(Callback<HttpResponse> callback);
+    HttpRequest after(Callback<HttpResponse> callback);
 
-    HttpRequest<R> encode(String encode);
+    HttpRequest encode(String encode);
 
-    HttpRequest<R> contentType(String type);
+    HttpRequest contentType(String type);
 
-    HttpRequest<R> param(String name, String value);
+    HttpRequest param(String name, String value);
 
-    HttpRequest<R> params(Map<String, String> params);
+    HttpRequest params(Map<String, String> params);
 
-    HttpRequest<R> header(String name, String value);
+    HttpRequest header(String name, String value);
 
-    HttpRequest<R> headers(Map<String, String> headers);
+    HttpRequest headers(Map<String, String> headers);
 
-    HttpRequest<R> requestBody(String body);
+    HttpRequest requestBody(String body);
 
-    HttpRequest<R> resultAsJsonString();
+    HttpRequest resultAsJsonString();
 
-    HttpRequest<R> cookie(String cookie);
+    HttpRequest cookie(String cookie);
 
-    HttpDownloader<R> download() throws IOException;
+    HttpDownloader download() throws IOException;
 
-    R upload(String paramName, File file) throws IOException;
+    Response upload(String paramName, File file) throws IOException;
 
-    R upload(File file) throws IOException;
+    Response upload(File file) throws IOException;
 
-    R get() throws IOException;
+    Response get() throws IOException;
 
-    R post() throws IOException;
+    Response post() throws IOException;
 
-    R put() throws IOException;
+    Response put() throws IOException;
 
-    R delete() throws IOException;
+    Response delete() throws IOException;
 
-    R patch() throws IOException;
+    Response patch() throws IOException;
 }
