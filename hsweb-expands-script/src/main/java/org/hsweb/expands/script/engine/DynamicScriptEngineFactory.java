@@ -19,7 +19,9 @@ public final class DynamicScriptEngineFactory {
     private static final Map<String, DynamicScriptEngine> map = new HashMap<>();
 
     static {
-        map.put("js", new JavaScriptEngine());
+        JavaScriptEngine engine = new JavaScriptEngine();
+        map.put("js", engine);
+        map.put("javascript", engine);
         map.put("groovy", new GroovyEngine());
         map.put("ruby", new RubyScriptEngine());
         map.put("python", new PythonScriptEngine());
