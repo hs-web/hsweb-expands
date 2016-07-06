@@ -14,6 +14,8 @@
         <module>hsweb-expands-quartz</module>
         <module>hsweb-expands-request</module>
         <module>hsweb-expands-shell</module>
+        <module>hsweb-expands-compress</module>
+        <module>hsweb-expands-template</module>
     </modules>
     <properties>
         <!-- base setting -->
