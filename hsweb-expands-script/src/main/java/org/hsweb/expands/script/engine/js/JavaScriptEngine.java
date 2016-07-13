@@ -1,6 +1,7 @@
 package org.hsweb.expands.script.engine.js;
 
 
+import org.hsweb.commons.MD5;
 import org.hsweb.commons.StringUtils;
 import org.hsweb.expands.script.engine.common.CommonScriptEngine;
 
@@ -18,7 +19,14 @@ public class JavaScriptEngine extends CommonScriptEngine {
 
     @Override
     public boolean compile(String id, String code) throws Exception {
-        code = StringUtils.concat("(function(){", code, "\n})();");
-        return super.compile(id,code);
+        if (logger.isDebugEnabled()) {
+            logger.debug("compile {} {} : {}", getScriptName(), id, code);
+        }
+        if (compilable == null)
+            init();
+        CompiledScript compiledScript = compilable.compile(StringUtils.concat("(function(){", code, "\n})();"));
+        CommonScriptContext scriptContext = new CommonScriptContext(id, MD5.defaultEncode(code), compiledScript);
+        scriptBase.put(id, scriptContext);
+        return true;
     }
 }
