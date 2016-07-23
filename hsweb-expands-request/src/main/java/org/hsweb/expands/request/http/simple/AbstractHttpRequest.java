@@ -7,15 +7,13 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hsweb.expands.request.http.Callback;
@@ -23,15 +21,7 @@ import org.hsweb.expands.request.http.HttpDownloader;
 import org.hsweb.expands.request.http.HttpRequest;
 import org.hsweb.expands.request.http.Response;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.*;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,17 +41,22 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     private Callback<HttpResponse> after;
     protected HttpClient httpClient;
 
+
     public AbstractHttpRequest(String url) {
         this.url = url;
-        if (httpClient == null) {
-            HttpClientBuilder builder = HttpClientBuilder.create();
-            httpClient = builder.build();
-        }
+        createHttpClient();
     }
 
     public AbstractHttpRequest(String url, HttpClient client) {
         this.url = url;
         this.httpClient = client;
+    }
+
+    protected void createHttpClient() {
+        if (httpClient == null) {
+            HttpClientBuilder builder = HttpClientBuilder.create();
+            httpClient = builder.build();
+        }
     }
 
     @Override
@@ -189,9 +184,12 @@ public abstract class AbstractHttpRequest implements HttpRequest {
             @Override
             public Response write(File file) throws IOException {
                 if (response == null) get();
-                if (file.isFile()) {
-                    return write(new FileOutputStream(file));
-                } else if (file.isDirectory()) {
+                if (!file.isDirectory()) {
+                    try(FileOutputStream fileOutputStream=new FileOutputStream(file)){
+                        return write(fileOutputStream);
+                    }
+
+                } else {
                     HttpEntity entity = response.getEntity();
                     Header header = response.getFirstHeader("Content-disposition");
                     String fileName;
@@ -206,20 +204,20 @@ public abstract class AbstractHttpRequest implements HttpRequest {
                             fileName = "unknow";
                         }
                     }
-                    FileOutputStream outputStream = new FileOutputStream(new File(file, fileName));
-                    if (response.getStatusLine().getStatusCode() == 200) {
-                        InputStream inputStream = entity.getContent();
-                        int b;
-                        while ((b = inputStream.read()) != -1) {
-                            outputStream.write(b);
+                    try (FileOutputStream outputStream = new FileOutputStream(new File(file, fileName))) {
+                        if (response.getStatusLine().getStatusCode() == 200) {
+                            InputStream inputStream = entity.getContent();
+                            int b;
+                            while ((b = inputStream.read()) != -1) {
+                                outputStream.write(b);
+                            }
+                            EntityUtils.consumeQuietly(entity);
+                            return null;
+                        } else {
+                            return getResultValue(response);
                         }
-                        EntityUtils.consumeQuietly(entity);
-                        return null;
-                    } else {
-                        return getResultValue(response);
                     }
                 }
-                throw new IOException("file cannot write");
             }
 
             @Override
@@ -260,10 +258,21 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     }
 
     @Override
+    public Response upload(String paramName, InputStream inputStream) throws IOException {
+        HttpPost post = new HttpPost(url);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create()
+                .addPart(paramName, new InputStreamBody(inputStream, paramName));
+        params.forEach(builder::addTextBody);
+        post.setEntity(builder.build());
+        HttpResponse response = execute(post);
+        return getResultValue(response);
+    }
+
+    @Override
     public Response upload(String paramName, File file) throws IOException {
         HttpPost post = new HttpPost(url);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
-                .addPart("paramName", new FileBody(file));
+                .addPart(paramName, new FileBody(file));
         params.forEach(builder::addTextBody);
         post.setEntity(builder.build());
         HttpResponse response = execute(post);
