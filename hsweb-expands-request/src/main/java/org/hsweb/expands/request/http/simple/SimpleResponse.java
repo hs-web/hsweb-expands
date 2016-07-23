@@ -25,7 +25,7 @@ public class SimpleResponse implements Response {
 
     @Override
     public String asString() throws IOException {
-        return EntityUtils.toString(response.getEntity());
+        return new String(asBytes());
     }
 
     @Override
