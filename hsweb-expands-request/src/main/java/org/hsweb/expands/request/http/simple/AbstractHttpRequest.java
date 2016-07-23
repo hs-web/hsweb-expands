@@ -239,19 +239,6 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         };
     }
 
-    protected HttpResponse download(String a) throws IOException {
-        List<NameValuePair> nameValuePair = params.entrySet()
-                .stream().map(stringStringEntry ->
-                        new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                .collect(Collectors.toList());
-        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-        String param = EntityUtils.toString(formEntity);
-        String tmpUrl = url + (url.contains("?") ? "&" : "?") + param;
-        HttpGet get = new HttpGet(tmpUrl);
-        return execute(get);
-    }
-
-
     @Override
     public Response upload(File file) throws IOException {
         return upload("file", file);
