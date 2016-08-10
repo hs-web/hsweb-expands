@@ -14,10 +14,8 @@ import javax.tools.*;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -63,6 +61,13 @@ public class JavaEngine extends ListenerSupportEngine {
         if (!StringUtils.isNullOrEmpty(packageName)) {
             name = packageName + "." + name;
         }
+        try {
+            //企图覆盖非动态编译的类
+            Class.forName(name);
+            throw new UnsupportedOperationException("class " + name + " is exists!");
+        } catch (ClassNotFoundException e) {
+        }
+
         String fileName = savePath + "src/" + name.replace('.', '/') + ".java";
         File file = new File(fileName);
         if (file.exists()) file.delete();
@@ -71,14 +76,12 @@ public class JavaEngine extends ListenerSupportEngine {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         List<JavaFileObject> jfiles = new ArrayList<>();
-        StandardJavaFileManager fm = compiler.getStandardFileManager(null, null, null);
+        StandardJavaFileManager fm = compiler.getStandardFileManager(null, Locale.CHINA, Charset.forName("UTF-8"));
         jfiles.add(new CharSequenceJavaFileObject(savePath, name, code));
         List<String> options = new ArrayList<String>();
         options.add("-d");
         options.add(savePath + "bin");
-        options.add("-encoding");
-        options.add("UTF-8");
-        options.add("-classpath");
+        options.add("-cp");
         options.add(classpath);
         if (logger.isDebugEnabled()) {
             logger.debug("javac [{}] -> {}", fileName, options.stream().reduce((s, s2) -> s + " " + s2).get());

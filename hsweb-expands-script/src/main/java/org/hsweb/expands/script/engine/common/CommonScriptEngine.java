@@ -123,7 +123,7 @@ public abstract class CommonScriptEngine extends ListenerSupportEngine {
         return result;
     }
 
-    class CommonScriptContext extends org.hsweb.expands.script.engine.ScriptContext {
+    protected class CommonScriptContext extends org.hsweb.expands.script.engine.ScriptContext {
         private CompiledScript script;
 
         public CommonScriptContext(String id, String md5, CompiledScript script) {
