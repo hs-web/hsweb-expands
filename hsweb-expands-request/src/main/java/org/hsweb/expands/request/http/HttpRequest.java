@@ -6,6 +6,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -39,6 +40,8 @@ public interface HttpRequest extends Closeable {
     HttpDownloader download() throws IOException;
 
     Response upload(String paramName, File file) throws IOException;
+
+    Response upload(String paramName,InputStream inputStream) throws IOException;
 
     Response upload(File file) throws IOException;
 

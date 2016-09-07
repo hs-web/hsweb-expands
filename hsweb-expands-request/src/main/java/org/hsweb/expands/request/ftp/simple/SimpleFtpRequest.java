@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by zhouhao on 16-6-24.
  */
-public class  SimpleFtpRequest implements FtpRequest {
+public class SimpleFtpRequest implements FtpRequest {
     private Logger logger = LoggerFactory.getLogger(FtpRequest.class);
     private FTPClient ftp;
     private String username, password;
@@ -41,13 +41,15 @@ public class  SimpleFtpRequest implements FtpRequest {
     }
 
     @Override
-    public void encode(String encode) {
+    public FtpRequest encode(String encode) {
         ftp.setControlEncoding(encode);
+        return this;
     }
 
     @Override
-    public boolean login() throws IOException {
-        return ftp.login(username, password);
+    public FtpRequest login() throws IOException {
+        ftp.login(username, password);
+        return this;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class  SimpleFtpRequest implements FtpRequest {
 
     @Override
     public boolean logout() throws IOException {
-        return  ftp.logout();
+        return ftp.logout();
     }
 
     @Override

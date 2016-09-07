@@ -152,12 +152,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
             @Override
             public HttpDownloader get() throws IOException {
-                List<NameValuePair> nameValuePair = params.entrySet()
-                        .stream().map(stringStringEntry ->
-                                new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                        .collect(Collectors.toList());
-                UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-                String param = EntityUtils.toString(formEntity);
+                String param = EntityUtils.toString(createUrlEncodedFormEntity());
                 String tmpUrl = url + (url.contains("?") ? "&" : "?") + param;
                 HttpGet get = new HttpGet(tmpUrl);
                 response = execute(get);
@@ -170,12 +165,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
                 if (requestBody != null)
                     post.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
                 else {
-                    List<NameValuePair> nameValuePair = params.entrySet()
-                            .stream().map(stringStringEntry ->
-                                    new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                            .collect(Collectors.toList());
-                    UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-                    post.setEntity(formEntity);
+                    post.setEntity(createUrlEncodedFormEntity());
                 }
                 response = execute(post);
                 return this;
@@ -185,12 +175,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
             public Response write(File file) throws IOException {
                 if (response == null) get();
                 if (!file.isDirectory()) {
-                    try(FileOutputStream fileOutputStream=new FileOutputStream(file)){
+                    try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                         return write(fileOutputStream);
                     }
-
                 } else {
-                    HttpEntity entity = response.getEntity();
                     Header header = response.getFirstHeader("Content-disposition");
                     String fileName;
                     if (header != null) {
@@ -205,17 +193,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
                         }
                     }
                     try (FileOutputStream outputStream = new FileOutputStream(new File(file, fileName))) {
-                        if (response.getStatusLine().getStatusCode() == 200) {
-                            InputStream inputStream = entity.getContent();
-                            int b;
-                            while ((b = inputStream.read()) != -1) {
-                                outputStream.write(b);
-                            }
-                            EntityUtils.consumeQuietly(entity);
-                            return null;
-                        } else {
-                            return getResultValue(response);
-                        }
+                        return write(outputStream);
                     }
                 }
             }
@@ -280,12 +258,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
     @Override
     public Response get() throws IOException {
-        List<NameValuePair> nameValuePair = params.entrySet()
-                .stream().map(stringStringEntry ->
-                        new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                .collect(Collectors.toList());
-        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-        String param = EntityUtils.toString(formEntity);
+        String param = EntityUtils.toString(createUrlEncodedFormEntity());
         String tmpUrl = url + (url.contains("?") ? "&" : "?") + param;
         HttpGet get = new HttpGet(tmpUrl);
         HttpResponse response = execute(get);
@@ -299,12 +272,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         if (requestBody != null)
             post.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
         else {
-            List<NameValuePair> nameValuePair = params.entrySet()
-                    .stream().map(stringStringEntry ->
-                            new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                    .collect(Collectors.toList());
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-            post.setEntity(formEntity);
+            post.setEntity(createUrlEncodedFormEntity());
         }
         HttpResponse response = execute(post);
         return getResultValue(response);
@@ -316,15 +284,19 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         if (requestBody != null)
             put.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
         else {
-            List<NameValuePair> nameValuePair = params.entrySet()
-                    .stream().map(stringStringEntry ->
-                            new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                    .collect(Collectors.toList());
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-            put.setEntity(formEntity);
+
+            put.setEntity(createUrlEncodedFormEntity());
         }
         HttpResponse response = execute(put);
         return getResultValue(response);
+    }
+
+    protected UrlEncodedFormEntity createUrlEncodedFormEntity() throws UnsupportedEncodingException {
+        List<NameValuePair> nameValuePair = params.entrySet()
+                .stream().map(stringStringEntry ->
+                        new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
+                .collect(Collectors.toList());
+        return new UrlEncodedFormEntity(nameValuePair, encode);
     }
 
     @Override
@@ -340,12 +312,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         if (requestBody != null)
             delete.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
         else {
-            List<NameValuePair> nameValuePair = params.entrySet()
-                    .stream().map(stringStringEntry ->
-                            new BasicNameValuePair(stringStringEntry.getKey(), stringStringEntry.getValue()))
-                    .collect(Collectors.toList());
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePair, encode);
-            delete.setEntity(formEntity);
+            delete.setEntity(createUrlEncodedFormEntity());
         }
         return getResultValue(execute(delete));
     }

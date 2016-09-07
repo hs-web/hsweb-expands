@@ -14,9 +14,9 @@ import java.util.function.Consumer;
  */
 public interface FtpRequest {
 
-    void encode(String encode);
+    FtpRequest encode(String encode);
 
-    boolean login() throws IOException;
+    FtpRequest login() throws IOException;
 
     boolean logout() throws IOException;
 

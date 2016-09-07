@@ -4,6 +4,9 @@ import org.hsweb.expands.request.ftp.FtpRequest;
 import org.hsweb.expands.request.ftp.simple.SimpleFtpRequest;
 import org.hsweb.expands.request.http.HttpRequest;
 import org.hsweb.expands.request.http.simple.SimpleHttpRequest;
+import org.hsweb.expands.request.http.simple.SimpleHttpsRequest;
+import org.hsweb.expands.request.webservice.WebServiceRequest;
+import org.hsweb.expands.request.webservice.simple.CXFWebServiceRequest;
 
 import java.io.IOException;
 
@@ -20,7 +23,7 @@ public class SimpleRequestBuilder implements RequestBuilder {
     public HttpRequest https(String url) {
         if (!url.startsWith("http")) url = "https://" + url;
         try {
-            return new SimpleHttpRequest(url);
+            return new SimpleHttpsRequest(url);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,4 +43,8 @@ public class SimpleRequestBuilder implements RequestBuilder {
         return ftp(host, 22);
     }
 
+    @Override
+    public WebServiceRequest ws(String url) throws Exception {
+        return new CXFWebServiceRequest(url).init();
+    }
 }
