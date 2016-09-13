@@ -14,7 +14,6 @@ public class MultitermSheetWrapper extends AbstractWrapper<Object> {
 
     private int sheet = 0;
     private ExcelReaderWrapper nowWrapper;
-    private Object nowInstance;
     private List<List> data = new ArrayList<>();
     private List nowData = new ArrayList<>();
 
