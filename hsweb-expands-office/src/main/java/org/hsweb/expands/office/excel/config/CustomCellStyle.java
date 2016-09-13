@@ -122,10 +122,16 @@ public class CustomCellStyle {
 
     public String getCacheKey() {
         StringBuilder builder = new StringBuilder();
-        builder.append(getFontName()).append(getAlignment()).append(getVerticalAlignment())
-                .append(getAlignment()).append(getBorderBottom()).append(getBorderLeft())
-                .append(getBorderRight()).append(getBorderTop()).append(getFontColor())
-                .append(getFormat()).append(getDataType());
+        builder.append(getFontName())
+                .append(getAlignment())
+                .append(getVerticalAlignment())
+                .append(getBorderBottom())
+                .append(getBorderLeft())
+                .append(getBorderRight())
+                .append(getBorderTop())
+                .append(getFontColor())
+                .append(getFormat())
+                .append(getDataType());
         return String.valueOf(builder.toString().hashCode());
     }
 

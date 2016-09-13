@@ -161,6 +161,7 @@ public class ExcelWriterConfig {
      * @return 自定义样式
      */
     public CustomCellStyle getCellStyle(int row, int column, String header, Object value) {
+        cellStyle.setFormat("");
         if (value == null) {
             cellStyle.setDataType("string");
         } else {
