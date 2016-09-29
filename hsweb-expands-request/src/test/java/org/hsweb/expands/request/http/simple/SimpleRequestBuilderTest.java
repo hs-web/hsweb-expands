@@ -78,6 +78,7 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testEmail() throws Exception {
+        // TODO: 16-9-29  
         builder.email()
                 .setting("host", "smtp.qq.com")
                 .setting("username", "")
