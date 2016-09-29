@@ -1,5 +1,7 @@
 package org.hsweb.expands.request;
 
+import org.hsweb.expands.request.email.EmailRequest;
+import org.hsweb.expands.request.email.EmailSender;
 import org.hsweb.expands.request.ftp.FtpRequest;
 import org.hsweb.expands.request.ftp.simple.SimpleFtpRequest;
 import org.hsweb.expands.request.http.HttpRequest;
@@ -7,12 +9,11 @@ import org.hsweb.expands.request.http.simple.SimpleHttpRequest;
 import org.hsweb.expands.request.http.simple.SimpleHttpsRequest;
 import org.hsweb.expands.request.webservice.WebServiceRequest;
 import org.hsweb.expands.request.webservice.simple.CXFWebServiceRequest;
+import org.hsweb.expands.request.websocket.WebSocketRequest;
 
 import java.io.IOException;
+import java.util.Properties;
 
-/**
- * Created by zhouhao on 16-6-23.
- */
 public class SimpleRequestBuilder implements RequestBuilder {
     @Override
     public HttpRequest http(String url) {
@@ -44,7 +45,20 @@ public class SimpleRequestBuilder implements RequestBuilder {
     }
 
     @Override
-    public WebServiceRequest ws(String url) throws Exception {
+    public WebServiceRequest webService(String url) throws Exception {
         return new CXFWebServiceRequest(url).init();
     }
+
+    @Override
+    public EmailRequest email() {
+        // TODO: 16-9-29  
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public WebSocketRequest webSocket(String url) {
+        // TODO: 16-9-29  
+        throw new UnsupportedOperationException();
+    }
+
 }

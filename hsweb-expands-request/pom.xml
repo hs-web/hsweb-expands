@@ -10,16 +10,30 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hsweb-expands-request</artifactId>
-
+    <properties>
+        <axis2.version>1.7.3</axis2.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <optional>true</optional>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.8.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -30,9 +44,9 @@
             <artifactId>hsweb-commons</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>commons-httpclient</groupId>-->
-            <!--<artifactId>commons-httpclient</artifactId>-->
-            <!--<version>3.1</version>-->
+        <!--<groupId>commons-httpclient</groupId>-->
+        <!--<artifactId>commons-httpclient</artifactId>-->
+        <!--<version>3.1</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -49,5 +63,14 @@
             <artifactId>commons-net</artifactId>
             <version>3.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>apache-cxf</artifactId>
+            <version>3.1.7</version>
+            <optional>true</optional>
+            <type>pom</type>
+        </dependency>
+
     </dependencies>
 </project>

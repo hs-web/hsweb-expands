@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -85,6 +84,8 @@ public class CXFWebServiceRequest implements WebServiceRequest {
         options.add(BIN_DIR);
         options.add("-cp");
         options.add(classpath);
+        options.add("-encoding");
+        options.add("UTF-8");
         if (logger.isDebugEnabled()) {
             logger.debug("javac {}", options.stream().reduce((s, s2) -> s + " " + s2).get());
         }
