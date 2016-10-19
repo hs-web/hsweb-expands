@@ -11,7 +11,7 @@
 
     <artifactId>hsweb-expands-request</artifactId>
     <properties>
-        <axis2.version>1.7.3</axis2.version>
+        <cxf.version>3.1.7</cxf.version>
     </properties>
     <dependencies>
         <dependency>
@@ -64,13 +64,32 @@
             <version>3.4</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.apache.cxf</groupId>-->
+            <!--<artifactId>apache-cxf</artifactId>-->
+            <!--<version>3.1.7</version>-->
+            <!--<optional>true</optional>-->
+            <!--<type>pom</type>-->
+        <!--</dependency>-->
+
+        <!--cxf-->
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>apache-cxf</artifactId>
-            <version>3.1.7</version>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
             <optional>true</optional>
-            <type>pom</type>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools-java2ws</artifactId>
+            <version>${cxf.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>

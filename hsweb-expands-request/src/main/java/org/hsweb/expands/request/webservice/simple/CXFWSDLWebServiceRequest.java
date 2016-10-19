@@ -4,6 +4,7 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.tools.common.CommandInterfaceUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaInterface;
+import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.wsdlto.WSDLToJava;
 import org.hsweb.commons.MD5;
@@ -22,42 +23,43 @@ import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public class CXFWebServiceRequest implements WebServiceRequest {
+public class CXFWSDLWebServiceRequest implements WebServiceRequest {
 
-    private static Logger logger = LoggerFactory.getLogger(CXFWebServiceRequest.class);
+    private static Logger logger = LoggerFactory.getLogger(CXFWSDLWebServiceRequest.class);
 
-    private String CODE_DIR;
-    private String SRC_DIR;
-    private String BIN_DIR;
-    private String url;
+    private String      CODE_DIR;
+    private String      SRC_DIR;
+    private String      BIN_DIR;
+    private String      url;
     private ClassLoader serviceClassLoader;
-    private Map<String, Class> serviceMap = new HashMap<>();
-    private Map<String, Class> interfaceMap = new HashMap<>();
-    private static String classpath = "";
-
-    public CXFWebServiceRequest(String url) throws Exception {
-        CODE_DIR = System.getProperty("java.io.tmpdir") + "/org/hsweb/request/ws/" + MD5.defaultEncode(url) + "/";
-        SRC_DIR = CODE_DIR + "src/";
-        BIN_DIR = CODE_DIR + "bin/";
-        new File(SRC_DIR).mkdirs();
-        new File(BIN_DIR).mkdirs();
-        serviceClassLoader = new URLClassLoader(new URL[]{new File(BIN_DIR).toURI().toURL()}, CXFWebServiceRequest.class.getClassLoader());
-        this.url = url;
-    }
+    private        Map<String, Class> serviceMap   = new HashMap<>();
+    private        Map<String, Class> interfaceMap = new HashMap<>();
+    private static String             classpath    = "";
 
     static {
         classpath = System.getProperty("java.class.path");
     }
 
+    public CXFWSDLWebServiceRequest(String url) throws Exception {
+        CODE_DIR = System.getProperty("java.io.tmpdir") + "/org/hsweb/request/ws/" + MD5.defaultEncode(url) + "/";
+        SRC_DIR = CODE_DIR + "src/";
+        BIN_DIR = CODE_DIR + "bin/";
+        new File(SRC_DIR).mkdirs();
+        new File(BIN_DIR).mkdirs();
+        serviceClassLoader = new URLClassLoader(new URL[]{new File(BIN_DIR).toURI().toURL()}, CXFWSDLWebServiceRequest.class.getClassLoader());
+        this.url = url;
+    }
+
+
     @Override
-    public WebServiceRequest init() throws Exception {
+    public WebServiceRequest init(String wsdl) throws Exception {
         if (logger.isDebugEnabled())
-            logger.debug("wsdl to java:{}->{}", url, SRC_DIR);
+            logger.debug("wsdl to java:{}->{}", wsdl, SRC_DIR);
         CommandInterfaceUtils.commandCommonMain();
-        WSDLToJava w2j = new WSDLToJava(new String[]{"-client", "-d", SRC_DIR, url});
+        WSDLToJava w2j = new WSDLToJava(new String[]{"-client", "-d", SRC_DIR, "-compile", "-classdir", BIN_DIR, url});
         ToolContext toolContext = new ToolContext();
         w2j.run(toolContext);
-        buildClass();
+        // buildClass();
         for (JavaInterface javaInterface : toolContext.getJavaModel().getInterfaces().values()) {
             interfaceMap.put(javaInterface.getName(), serviceClassLoader.loadClass(javaInterface.getFullClassName()));
         }
@@ -67,38 +69,38 @@ public class CXFWebServiceRequest implements WebServiceRequest {
         return this;
     }
 
-    protected void buildClass() {
-        //编译
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        List<JavaFileObject> jfiles = new ArrayList<>();
-        StandardJavaFileManager fm = compiler.getStandardFileManager(null, Locale.CHINA, Charset.forName("UTF-8"));
-        File src = new File(SRC_DIR);
-        FileUtils.scanFile(src.getAbsolutePath(), true, (d, file) -> {
-            if (!"package-info.java".equals(file.getName()) && file.getName().endsWith(".java")) {
-                jfiles.add(new JavaClassObject(file.getAbsolutePath().split("[.]")[0], JavaFileObject.Kind.SOURCE));
-            }
-        });
-        List<String> options = new ArrayList<>();
-        options.add("-d");
-        options.add(BIN_DIR);
-        options.add("-cp");
-        options.add(classpath);
-        options.add("-encoding");
-        options.add("UTF-8");
-        if (logger.isDebugEnabled()) {
-            logger.debug("javac {}", options.stream().reduce((s, s2) -> s + " " + s2).get());
-        }
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fm, diagnostics, options, null, jfiles);
-        boolean success = task.call();
-        if (!success) {
-            StringBuilder builder = new StringBuilder();
-            for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-                builder.append(diagnostic).append("\n");
-            }
-            throw new RuntimeException(builder.toString());
-        }
-    }
+//    protected void buildClass() {
+//        //编译
+//        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+//        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+//        List<JavaFileObject> jfiles = new ArrayList<>();
+//        StandardJavaFileManager fm = compiler.getStandardFileManager(null, Locale.CHINA, Charset.forName("UTF-8"));
+//        File src = new File(SRC_DIR);
+//        FileUtils.scanFile(src.getAbsolutePath(), true, (d, file) -> {
+//            if (!"package-info.java".equals(file.getName()) && file.getName().endsWith(".java")) {
+//                jfiles.add(new JavaClassObject(file.getAbsolutePath().split("[.]")[0], JavaFileObject.Kind.SOURCE));
+//            }
+//        });
+//        List<String> options = new ArrayList<>();
+//        options.add("-d");
+//        options.add(BIN_DIR);
+//        options.add("-cp");
+//        options.add(classpath);
+//        options.add("-encoding");
+//        options.add("UTF-8");
+//        if (logger.isDebugEnabled()) {
+//            logger.debug("javac {}", options.stream().reduce((s, s2) -> s + " " + s2).get());
+//        }
+//        JavaCompiler.CompilationTask task = compiler.getTask(null, fm, diagnostics, options, null, jfiles);
+//        boolean success = task.call();
+//        if (!success) {
+//            StringBuilder builder = new StringBuilder();
+//            for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
+//                builder.append(diagnostic).append("\n");
+//            }
+//            throw new RuntimeException(builder.toString());
+//        }
+//    }
 
     public class JavaClassObject extends SimpleJavaFileObject {
 

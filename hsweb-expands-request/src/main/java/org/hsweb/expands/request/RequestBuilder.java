@@ -3,7 +3,7 @@ package org.hsweb.expands.request;
 import org.hsweb.expands.request.email.EmailRequest;
 import org.hsweb.expands.request.ftp.FtpRequest;
 import org.hsweb.expands.request.http.HttpRequest;
-import org.hsweb.expands.request.webservice.WebServiceRequest;
+import org.hsweb.expands.request.webservice.WebServiceRequestBuilder;
 import org.hsweb.expands.request.websocket.WebSocketRequest;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ public interface RequestBuilder {
 
     FtpRequest ftp(String host) throws IOException;
 
-    WebServiceRequest webService(String url) throws Exception;
+    WebServiceRequestBuilder webService() throws Exception;
 
     EmailRequest email();
 

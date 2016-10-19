@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface WebServiceRequest {
 
-    WebServiceRequest init() throws Exception;
+    WebServiceRequest init(String wsdl) throws Exception;
 
     WebServiceRequestInvoker request(String interfaceName, String service, String method) throws NoSuchMethodException;
 
