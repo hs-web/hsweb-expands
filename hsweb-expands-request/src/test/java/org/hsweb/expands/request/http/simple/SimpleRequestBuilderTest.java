@@ -1,16 +1,11 @@
 package org.hsweb.expands.request.http.simple;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import org.hsweb.commons.file.FileUtils;
 import org.hsweb.expands.request.RequestBuilder;
 import org.hsweb.expands.request.SimpleRequestBuilder;
 import org.hsweb.expands.request.http.HttpRequest;
 import org.hsweb.expands.request.http.Response;
 import org.hsweb.expands.request.webservice.WebServiceRequest;
-import org.hsweb.expands.request.webservice.WebServiceRequestInvoker;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,6 +15,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 
 /**
@@ -78,6 +74,8 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testEmail() throws Exception {
+
+
         // TODO: 16-9-29  
         builder.email()
                 .setting("host", "smtp.qq.com")
@@ -88,5 +86,19 @@ public class SimpleRequestBuilderTest {
                 .to("admin@hsweb.me")
                 .content("test..", "text/html")
                 .send();
+    }
+
+    @Test
+    public void testWebService() throws Exception {
+        WebServiceRequest request = builder.webService().wsdl("http://192.168.2.150:9003/webservices/dataCollection?wsdl");
+        System.out.println(request.interfaces());
+        System.out.println(request.services());
+        for (String s : request.interfaces()) {
+            Method[] methods = request.methods(s);
+            for (Method method : methods) {
+                System.out.println(method);
+            }
+        }
+
     }
 }
