@@ -163,7 +163,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
             public HttpDownloader post() throws IOException {
                 HttpPost post = new HttpPost(url);
                 if (requestBody != null)
-                    post.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
+                    post.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
                 else {
                     post.setEntity(createUrlEncodedFormEntity());
                 }
@@ -270,7 +270,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response post() throws IOException {
         HttpPost post = new HttpPost(url);
         if (requestBody != null)
-            post.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
+            post.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
         else {
             post.setEntity(createUrlEncodedFormEntity());
         }
@@ -282,7 +282,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response put() throws IOException {
         HttpPut put = new HttpPut(url);
         if (requestBody != null)
-            put.setEntity(new StringEntity(requestBody, ContentType.create(contentType)));
+            put.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
         else {
 
             put.setEntity(createUrlEncodedFormEntity());
