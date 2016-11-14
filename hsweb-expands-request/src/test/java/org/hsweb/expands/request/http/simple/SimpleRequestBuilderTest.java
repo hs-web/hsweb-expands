@@ -66,7 +66,7 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testFtp() throws IOException {
-        builder.ftp("202.98.57.23", 21, "sjzx", "sjzx")
+        builder.ftp("192.168.2.142",2121)
                 .encode("gbk")
                 .ls()
                 .forEach(System.out::println);
