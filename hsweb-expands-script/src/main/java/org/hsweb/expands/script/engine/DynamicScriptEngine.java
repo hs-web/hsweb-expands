@@ -46,4 +46,5 @@ public interface DynamicScriptEngine {
 
     void addListener(ScriptListener scriptListener);
 
+    void addGlobalVariable(Map<String, Object> vars);
 }

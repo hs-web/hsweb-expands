@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by 浩 on 2015-10-27 0027.
- */
 public abstract class CommonScriptEngine extends ListenerSupportEngine {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     // 编译器
@@ -58,7 +55,7 @@ public abstract class CommonScriptEngine extends ListenerSupportEngine {
             script = compilable.compile(content);
             script.eval(utilBindings);
         }
-        scriptBase.clear();
+        //scriptBase.clear();
     }
 
     @Override
@@ -105,6 +102,7 @@ public abstract class CommonScriptEngine extends ListenerSupportEngine {
                 doListenerBefore(scriptContext);
                 ScriptContext context = new SimpleScriptContext();
                 context.setBindings(utilBindings, ScriptContext.GLOBAL_SCOPE);
+
                 for (Map.Entry<String, Object> entry : param.entrySet()) {
                     context.setAttribute(entry.getKey(), entry.getValue(), ScriptContext.ENGINE_SCOPE);
                 }
@@ -121,6 +119,11 @@ public abstract class CommonScriptEngine extends ListenerSupportEngine {
         result.setUseTime(System.currentTimeMillis() - startTime);
         doListenerAfter(scriptContext, result);
         return result;
+    }
+
+    @Override
+    public void addGlobalVariable(Map<String, Object> vars) {
+        utilBindings.putAll(vars);
     }
 
     protected class CommonScriptContext extends org.hsweb.expands.script.engine.ScriptContext {

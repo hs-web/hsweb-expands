@@ -1,13 +1,13 @@
 package org.hsweb.expands.script.engine;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-/**
- * Created by zhouhao on 16-6-27.
- */
 public abstract class ListenerSupportEngine implements DynamicScriptEngine {
     protected List<ScriptListener> listener = new LinkedList<>();
+    private Map<String, Object> globalVariable;
 
     protected void doListenerBefore(ScriptContext context) {
         listener.forEach(listener -> listener.before(context));
@@ -21,4 +21,16 @@ public abstract class ListenerSupportEngine implements DynamicScriptEngine {
     public void addListener(ScriptListener scriptListener) {
         listener.add(scriptListener);
     }
+
+    protected Map<String, Object> getGlobalVariable() {
+        if (null == globalVariable) return new HashMap<>();
+        return new HashMap<>(globalVariable);
+    }
+
+    @Override
+    public void addGlobalVariable(Map<String, Object> vars) {
+        globalVariable = vars;
+    }
+
+
 }

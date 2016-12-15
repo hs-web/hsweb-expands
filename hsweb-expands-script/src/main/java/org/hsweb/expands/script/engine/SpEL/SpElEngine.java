@@ -72,6 +72,8 @@ public class SpElEngine extends ListenerSupportEngine {
             if (scriptContext != null) {
                 doListenerBefore(scriptContext);
                 scriptContext = cache.get(id);
+                param = new HashMap<>(param);
+                param.putAll(getGlobalVariable());
                 EvaluationContext context = new StandardEvaluationContext(param);
                 for (Map.Entry<String, Object> entry : param.entrySet()) {
                     context.setVariable(entry.getKey(), entry.getValue());

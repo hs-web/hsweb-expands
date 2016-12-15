@@ -63,6 +63,8 @@ public class OgnlEngine extends ListenerSupportEngine {
             if (scriptContext != null) {
                 doListenerBefore(scriptContext);
                 scriptContext = cache.get(id);
+                param = new HashMap<>(param);
+                param.putAll(getGlobalVariable());
                 Object obj = Ognl.getValue(scriptContext.getScript(), param, param);
                 result.setSuccess(true);
                 result.setResult(obj);

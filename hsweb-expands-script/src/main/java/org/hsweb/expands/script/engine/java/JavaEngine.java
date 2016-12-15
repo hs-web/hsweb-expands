@@ -22,12 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by 浩 on 2015-10-27 0027.
  */
 public class JavaEngine extends ListenerSupportEngine {
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
-    private String savePath = null;
-    private String classpath = "";
-    private Map<String, JavaCodeContext> cache = new ConcurrentHashMap<>();
-
-    private URL[] loaderUrl;
+    protected Logger                       logger    = LoggerFactory.getLogger(this.getClass());
+    private   String                       savePath  = null;
+    private   String                       classpath = "";
+    private   Map<String, JavaCodeContext> cache     = new ConcurrentHashMap<>();
+    private URL[]               loaderUrl;
 
     public JavaEngine() throws Exception {
         savePath = System.getProperty("java.io.tmpdir").concat("/org/hsweb/java/engine/");
@@ -72,7 +71,6 @@ public class JavaEngine extends ListenerSupportEngine {
         File file = new File(fileName);
         if (file.exists()) file.delete();
         FileUtils.writeString2File(code, fileName, "utf-8");
-
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         List<JavaFileObject> jfiles = new ArrayList<>();
@@ -124,7 +122,9 @@ public class JavaEngine extends ListenerSupportEngine {
                 Executor executor = context.getExecutor();
                 Class clazz = context.getCodeClass();
                 if (executor != null) {
-                    result.setResult(executor.execute(param));
+                    Map<String, Object> var = new HashMap<>(param);
+                    var.putAll(getGlobalVariable());
+                    result.setResult(executor.execute(var));
                     result.setSuccess(true);
                 } else {
                     result.setSuccess(true);
@@ -159,7 +159,7 @@ public class JavaEngine extends ListenerSupportEngine {
     }
 
     protected class JavaCodeContext extends ScriptContext {
-        private Class codeClass;
+        private Class    codeClass;
         private Executor executor;
 
         public JavaCodeContext(String id, String md5, Class codeClass, Executor executor) {
