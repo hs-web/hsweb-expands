@@ -39,6 +39,11 @@ public class SimpleResponse implements Response {
     }
 
     @Override
+    public <T> T getNativeResponse() {
+        return (T) response;
+    }
+
+    @Override
     public String toString() {
         try {
             return asString();

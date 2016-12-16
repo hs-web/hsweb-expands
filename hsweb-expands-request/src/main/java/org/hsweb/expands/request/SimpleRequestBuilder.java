@@ -4,8 +4,10 @@ import org.hsweb.expands.request.email.EmailRequest;
 import org.hsweb.expands.request.ftp.FtpRequest;
 import org.hsweb.expands.request.ftp.simple.SimpleFtpRequest;
 import org.hsweb.expands.request.http.HttpRequest;
+import org.hsweb.expands.request.http.HttpRequestGroup;
 import org.hsweb.expands.request.http.simple.SimpleHttpRequest;
 import org.hsweb.expands.request.http.simple.SimpleHttpsRequest;
+import org.hsweb.expands.request.http.simple.SimpleRequestGroup;
 import org.hsweb.expands.request.webservice.SimpleWebServiceRequestBuilder;
 import org.hsweb.expands.request.webservice.WebServiceRequestBuilder;
 import org.hsweb.expands.request.websocket.WebSocketRequest;
@@ -13,6 +15,11 @@ import org.hsweb.expands.request.websocket.WebSocketRequest;
 import java.io.IOException;
 
 public class SimpleRequestBuilder implements RequestBuilder {
+
+    @Override
+    public HttpRequestGroup http() {
+        return new SimpleRequestGroup();
+    }
 
     @Override
     public HttpRequest http(String url) {
@@ -45,7 +52,7 @@ public class SimpleRequestBuilder implements RequestBuilder {
 
     @Override
     public WebServiceRequestBuilder webService() throws Exception {
-      return new SimpleWebServiceRequestBuilder();
+        return new SimpleWebServiceRequestBuilder();
     }
 
 

@@ -1,9 +1,12 @@
 package org.hsweb.expands.request.http.simple;
 
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.hsweb.expands.request.RequestBuilder;
 import org.hsweb.expands.request.SimpleRequestBuilder;
 import org.hsweb.expands.request.http.HttpRequest;
+import org.hsweb.expands.request.http.HttpRequestGroup;
 import org.hsweb.expands.request.http.Response;
 import org.hsweb.expands.request.webservice.WebServiceRequest;
 import org.jsoup.Jsoup;
@@ -50,10 +53,16 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testHttp() throws IOException {
-        HttpRequest request = builder.http("192.168.2.195:8888/user");
-        Response response = request.get();
-        System.out.println(response.getCode());
-        System.out.println(response.asString());
+        HttpRequestGroup group = builder.http();
+
+        String login = group.request("http://demo.hsweb.me/login")
+                .param("username", "test")
+                .param("password", "123456").post().asString();
+
+        System.out.println(login);
+        System.out.println(group.request("http://demo.hsweb.me/online").get().asString());
+
+        System.out.println(group.request("http://demo.hsweb.me/user").get().asString());
     }
 
     @Test
@@ -66,7 +75,7 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testFtp() throws IOException {
-        builder.ftp("192.168.2.142",2121)
+        builder.ftp("192.168.2.142", 2121, "", "")
                 .encode("gbk")
                 .ls()
                 .forEach(System.out::println);
@@ -74,9 +83,7 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testEmail() throws Exception {
-
-
-        // TODO: 16-9-29  
+        // TODO: 16-9-29
         builder.email()
                 .setting("host", "smtp.qq.com")
                 .setting("username", "")

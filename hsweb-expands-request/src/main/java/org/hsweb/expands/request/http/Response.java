@@ -14,4 +14,7 @@ public interface Response {
     byte[] asBytes() throws IOException;
 
     InputStream asStream() throws IOException;
+
+    <T> T getNativeResponse();
+
 }
