@@ -22,8 +22,21 @@ import java.util.Map;
 public class TestWriter {
 
     @Test
+    public void testWriteTemplate2() throws Exception {
+        try (InputStream in = new FileInputStream("/home/zhouhao/文档/保证书模板.docx");
+             OutputStream out = new FileOutputStream("target/保证书模板.docx")) {
+            //构造 模板所需的变量
+            Map<String, Object> vars = new HashMap<>();
+            vars.put("公司", "测试");
+            vars.put("地址", "重庆市****");
+            WordIO.writeTemplate(in, out, vars);
+            out.flush();
+        }
+    }
+
+    @Test
     public void testWriteTemplate() throws Exception {
-        try (InputStream in = new FileInputStream(FileUtils.getResourceAsFile("docx/test.docx"));
+        try (InputStream in = new FileInputStream(FileUtils.getResourceAsFile("docx/template.docx"));
              OutputStream out = new FileOutputStream("target/test.docx")) {
             //构造 模板所需的变量
             Map<String, Object> vars = new HashMap<>();
@@ -73,14 +86,14 @@ public class TestWriter {
         table.setWidth(500);
         List<XWPFTableRow> rows = table.getRows();
         for (int i = 0; i < rows.size(); i++) {
-            if(i==0)continue;
+            if (i == 0) continue;
             XWPFTableRow row = rows.get(i);
             List<XWPFTableCell> cells = row.getTableCells();
             for (int x = 0; x < cells.size(); x++) {
                 String header = headers[x];
-                if (i ==1)
+                if (i == 1)
                     cells.get(x).setText(header);
-                else  {
+                else {
                     String text = String.valueOf(datas.get(i - 1).get(header));
                     cells.get(x).setText(text);
                 }

@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -30,21 +29,17 @@ public class TestReader {
     public void testRead2Map() throws Exception {
         try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
             List<Map<String, Object>> dataList = ExcelIO.read2Map(in);
-            for (Map<String, Object> map : dataList) {
-                System.out.println(map);
-            }
+            dataList.forEach(System.out::println);
         }
     }
     /**
-     * 测试将excel表格转为map
+     * 测试将excel表格转为多个map
      */
     @Test
     public void testRead2MulMap() throws Exception {
         try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
             List<List<Map<String, Object>>> dataList = ExcelIO.read2MulMap(in);
-            for (List map : dataList) {
-                System.out.println(map);
-            }
+            dataList.forEach(System.out::println);
         }
     }
     /**

@@ -12,7 +12,10 @@
     <artifactId>hsweb-expands-template</artifactId>
 
     <dependencies>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.hsweb</groupId>
             <artifactId>hsweb-commons</artifactId>

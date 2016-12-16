@@ -122,12 +122,12 @@ public class TestWriter {
      */
     @Test
     public void testWriteSimple() throws Exception {
-      long t = System.currentTimeMillis();
+        long t = System.currentTimeMillis();
         try (OutputStream outputStream = new FileOutputStream("target/test_1.xlsx")) {
             ExcelIO.write(outputStream, headers, datas);
             outputStream.flush();
         }
-        System.out.println(System.currentTimeMillis()-t);
+        System.out.println(System.currentTimeMillis() - t);
     }
 
     /**
@@ -135,30 +135,20 @@ public class TestWriter {
      */
     @Test
     public void testWriteTemplate() throws Exception {
-        try (InputStream inputStream = FileUtils.getResourceAsStream("template.xlsx")
+        try (InputStream inputStream = FileUtils.getResourceAsStream("template22.xlsx")
              ; OutputStream outputStream = new FileOutputStream("target/test_template.xlsx")) {
             //定义变量
             Map<String, Object> var = new HashMap<>();
-            var.put("标题", "测试");
+            var.put("标题", "实收汇总报表(2016-10-01至2016-10-31)");
             var.put("list", new ArrayList<Object>() {
                 {
-                    add(new HashMap<String, Object>() {
-                        {
-                            put("姓名", "张三");
-                            put("年龄", 20);
-                            put("性别", 1);
-                            put("年级", 1);
-                            put("班级", 2);
-                        }
-                    });
                     for (int i = 0; i < 10; i++) {
                         add(new HashMap<String, Object>() {
                             {
-                                put("姓名", "张三");
-                                put("年龄", 19);
-                                put("性别", 2);
-                                put("年级", 2);
-                                put("班级", 1);
+                                put("房间号码", "101");
+                                put("客户名称", "测试");
+                                put("金额", 20);
+                                put("合计", 10000);
                             }
                         });
                     }
@@ -186,6 +176,44 @@ public class TestWriter {
             outputStream.flush();
         }
     }
+
+    /**
+     * 自定义导出,合并单元格等，有待优化
+     */
+    @Test
+    public void testWriteMerge() throws Exception {
+        try (OutputStream outputStream = new FileOutputStream("target/test.xlsx")) {
+            ExcelWriterConfig config = new ExcelWriterConfig();
+            config.setDatas(Arrays.asList(
+                    new HashMap() {{
+                        put("type", "规模");
+                        put("name", "产量");
+                    }}, new HashMap() {{
+                        put("type", "规模");
+                        put("name", "新能源产量");
+                    }}, new HashMap() {{
+                        put("type", "规模");
+                        put("name", "新能源占比");
+                    }}, new HashMap() {{
+                        put("type", "达标情况");
+                        put("name", "平均油耗实测值");
+                    }}, new HashMap() {{
+                        put("type", "达标情况");
+                        put("name", "平均油耗目标值");
+                    }}, new HashMap() {{
+                        put("type", "达标情况");
+                        put("name", "平均油耗达标值");
+                    }}));
+            config.setHeaders(Arrays.asList(
+                    new Header("类型", "type"),
+                    new Header("名称", "name")));
+            config.mergeColumn("type");
+            CommonExcelWriterCallBack ca = new CommonExcelWriterCallBack(config);
+            POIExcelApi.getInstance().write(outputStream, ca);
+            outputStream.flush();
+        }
+    }
+
 
     /**
      * 自定义导出样式，有待优化

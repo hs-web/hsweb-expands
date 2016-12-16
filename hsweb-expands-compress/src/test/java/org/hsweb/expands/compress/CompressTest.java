@@ -1,5 +1,6 @@
 package org.hsweb.expands.compress;
 
+import org.hsweb.commons.MD5;
 import org.hsweb.commons.file.FileUtils;
 import org.hsweb.expands.compress.zip.ZIPReader;
 import org.junit.Assert;
@@ -20,13 +21,13 @@ public class CompressTest {
         ZIPReader reader = Compress.unzip(FileUtils.getResourceAsFile("test.zip"));
         List<String> files = reader.ls();
         Assert.assertEquals(files.size(), 2);
-        reader.unpack(new File("target/test"));
+        reader.unpack("test",new File("target/test"));
     }
 
     @org.junit.Test
     public void testZip() throws Exception {
         Compress.zip()
-                .addTextFile("test.txt", "test")
+                .addTextFile("测试.txt", "test")
                 .addTextFile("/test/test2.txt", "test2")
                 .write(new FileOutputStream("target/test.zip"));
     }
