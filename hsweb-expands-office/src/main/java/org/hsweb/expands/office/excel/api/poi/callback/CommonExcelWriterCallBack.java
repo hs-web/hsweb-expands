@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by 浩 on 2015-12-16 0016.
@@ -172,10 +173,14 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
     protected void prepareMerges() {
         //解析表头与列号
         List<String> list = config.getMergeColumns();
-        Map<String, Integer> cols = new LinkedHashMap<>();
-        config.getHeaders().stream().filter(header -> list.contains(header.getField())).forEach(header -> {
-            cols.put(header.getField(), config.getHeaders().indexOf(header));
-        });
+//        Map<String, Integer> cols = new LinkedHashMap<>();
+        Map<String, Integer> cols = config.getHeaders().stream()
+                .filter(header -> list.contains(header.getField()))
+                .collect(Collectors.toMap(Header::getField, config.getHeaders()::indexOf, (u, l) -> l, LinkedHashMap::new));
+
+//        config.getHeaders().stream().filter(header -> list.contains(header.getField())).forEach(header -> {
+//            cols.put(header.getField(), config.getHeaders().indexOf(header));
+//        });
         List<Object> datas = config.getDatas();
 
         // 列所在索引//列计数器////上一次合并的列位置

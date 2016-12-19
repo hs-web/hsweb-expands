@@ -49,6 +49,7 @@ public class ExcelWriterConfig {
     }
 
     public ExcelWriterConfig addHeader(Header header) {
+        header.setSort(headers.size());
         headers.add(header);
         return this;
     }
@@ -106,6 +107,13 @@ public class ExcelWriterConfig {
     }
 
     public void setHeaders(List<Header> headers) {
+        for (int i = 0; i < headers.size(); i++) {
+            Header header = headers.get(i);
+            if (header.getSort() == -1) {
+                header.setSort(i);
+            }
+        }
+        headers.sort(Header::compareTo);
         this.headers = headers;
     }
 

@@ -8,7 +8,7 @@ public class Header implements Comparable<Header> {
 
     private String field;
 
-    private int sort;
+    private int sort = -1;
 
     public Header() {
     }
