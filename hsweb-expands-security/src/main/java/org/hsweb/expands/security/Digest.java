@@ -11,4 +11,6 @@ public interface Digest {
 
     String get();
 
+    Digest MD5  = new DefaultMessageDigest("md5");
+    Digest SHA1 = new DefaultMessageDigest("sha1");
 }

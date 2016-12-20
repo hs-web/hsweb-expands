@@ -1,6 +1,8 @@
 package org.hsweb.expands.security;
 
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.security.*;
 
 /**
@@ -42,4 +44,7 @@ public class DefaultMessageDigest implements Digest {
         return builder.toString();
     }
 
+    public static void main(String[] args) {
+        System.out.println(new DefaultMessageDigest("SHA256").digest("test").get());
+    }
 }
