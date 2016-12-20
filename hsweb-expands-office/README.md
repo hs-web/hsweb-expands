@@ -5,9 +5,9 @@
 ```xml
     <!--pom.xml-->
      <dependency>
-        <groupId>org.hsweb</groupId>
+        <groupId>org.hswebframework</groupId>
         <artifactId>hsweb-expands-office</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
     </dependency>
     
       <repositories>
