@@ -7,7 +7,7 @@
      <dependency>
         <groupId>org.hswebframework</groupId>
         <artifactId>hsweb-expands-office</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.0-SNAPSHOT</version>
     </dependency>
     
       <repositories>

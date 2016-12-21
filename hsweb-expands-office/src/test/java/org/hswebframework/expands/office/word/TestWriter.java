@@ -36,7 +36,7 @@ public class TestWriter {
 
     @Test
     public void testWriteTemplate() throws Exception {
-        try (InputStream in = new FileInputStream(FileUtils.getResourceAsFile("docx/template.docx"));
+        try (InputStream in = new FileInputStream(FileUtils.getResourceAsFile("docx/test.docx"));
              OutputStream out = new FileOutputStream("target/test.docx")) {
             //构造 模板所需的变量
             Map<String, Object> vars = new HashMap<>();
@@ -65,42 +65,5 @@ public class TestWriter {
             out.flush();
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        String[] headers = {"姓名", "性别", "年龄", "班级"};
-        List<Map<String, Object>> datas = new ArrayList<>();
-        datas.add(new HashMap<String, Object>() {
-            {
-                put("姓名", "222");
-                put("性别", "aaa");
-            }
-        });
-        datas.add(new HashMap<String, Object>() {
-            {
-                put("姓名", "33");
-                put("性别", "222");
-            }
-        });
-        XWPFDocument document = new XWPFDocument();
-        XWPFTable table = document.createTable(datas.size(), headers.length);
-        table.setWidth(500);
-        List<XWPFTableRow> rows = table.getRows();
-        for (int i = 0; i < rows.size(); i++) {
-            if (i == 0) continue;
-            XWPFTableRow row = rows.get(i);
-            List<XWPFTableCell> cells = row.getTableCells();
-            for (int x = 0; x < cells.size(); x++) {
-                String header = headers[x];
-                if (i == 1)
-                    cells.get(x).setText(header);
-                else {
-                    String text = String.valueOf(datas.get(i - 1).get(header));
-                    cells.get(x).setText(text);
-                }
-            }
-        }
-        document.write(new FileOutputStream("/home/zhouhao/桌面/test2.docx"));
-    }
-
 
 }

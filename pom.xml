@@ -7,7 +7,7 @@
     <groupId>org.hswebframework</groupId>
     <artifactId>hsweb-expands</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0</version>
+    <version>3.0.0-SNAPSHOT</version>
     <modules>
         <module>hsweb-expands-script</module>
         <module>hsweb-expands-office</module>
@@ -78,7 +78,43 @@
             </dependency>
 
             <dependency>
-                <groupId>org.hswebframework</groupId>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hsweb-expands-compress</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hsweb-expands-office</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hsweb-expands-request</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hsweb-expands-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hsweb-expands-shell</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hsweb-expands-template</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>hsweb-expands-script</artifactId>
                 <version>${project.version}</version>
             </dependency>
