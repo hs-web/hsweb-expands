@@ -17,6 +17,12 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hswebframework</groupId>
+            <artifactId>hsweb-expands-security</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

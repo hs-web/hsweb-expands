@@ -135,6 +135,7 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!--groovy-->
@@ -156,6 +157,7 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
                 <version>4.0.6.RELEASE</version>
+                <optional>true</optional>
             </dependency>
         </dependencies>
     </dependencyManagement>

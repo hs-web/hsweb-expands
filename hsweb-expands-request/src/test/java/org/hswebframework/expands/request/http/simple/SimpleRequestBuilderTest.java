@@ -1,6 +1,7 @@
 package org.hswebframework.expands.request.http.simple;
 
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.hswebframework.expands.request.RequestBuilder;
 import org.hswebframework.expands.request.SimpleRequestBuilder;
 import org.hswebframework.expands.request.http.HttpRequest;
@@ -104,6 +105,6 @@ public class SimpleRequestBuilderTest {
                 System.out.println(method);
             }
         }
-
     }
+
 }
