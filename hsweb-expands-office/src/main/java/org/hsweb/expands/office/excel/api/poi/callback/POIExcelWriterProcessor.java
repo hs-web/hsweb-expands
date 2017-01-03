@@ -21,11 +21,11 @@ public class POIExcelWriterProcessor implements ExcelWriterProcessor {
     /**
      * 工作簿对象
      */
-    private Workbook workbook;
+    private Workbook     workbook;
     /**
      * 表格对象
      */
-    private Sheet sheet;
+    private Sheet        sheet;
     /**
      * 表格索引
      */
@@ -49,15 +49,18 @@ public class POIExcelWriterProcessor implements ExcelWriterProcessor {
      */
     private Cell nowCell;
 
+    private boolean autoWrite;
+
     /**
      * 带参数的构造方法，参数不能为空
      *
      * @param outputStream 文档输出流
      * @param workbook     工作簿实例
      */
-    public POIExcelWriterProcessor(OutputStream outputStream, Workbook workbook) {
+    public POIExcelWriterProcessor(OutputStream outputStream, Workbook workbook, boolean autoWrite) {
         this.outputStream = outputStream;
         this.workbook = workbook;
+        this.autoWrite = autoWrite;
     }
 
     @Override
@@ -97,7 +100,8 @@ public class POIExcelWriterProcessor implements ExcelWriterProcessor {
             //禁止重复结束
             throw new NullPointerException("processor is done");
         }
-        workbook.write(outputStream);
+        if (autoWrite)
+            workbook.write(outputStream);
         done = true;
     }
 
