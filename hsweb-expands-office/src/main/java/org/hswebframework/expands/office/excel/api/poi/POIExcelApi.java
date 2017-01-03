@@ -111,11 +111,12 @@ public class POIExcelApi implements ExcelApi {
         logger.info("start write sheet,size :" + allSheet.size());
         for (ExcelWriterCallBack writerCallBack : allSheet) {
             //创建处理器
-            POIExcelWriterProcessor processor = new POIExcelWriterProcessor(outputStream, workbook);
+            POIExcelWriterProcessor processor = new POIExcelWriterProcessor(outputStream, workbook, false);
             processor.setSheetIndex(index++);
             //调用回掉进行渲染
             writerCallBack.render(processor);
         }
+        workbook.write(outputStream);
     }
 
 }

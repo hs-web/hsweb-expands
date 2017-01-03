@@ -280,7 +280,7 @@ public class TestWriter {
             config2.setHeaders(headers);
             config2.setDatas(datas);
             //写出
-            ExcelIO.write(outputStream, config, config2);
+            ExcelIO.write(outputStream, config,config2);
             outputStream.flush();
         }
     }
