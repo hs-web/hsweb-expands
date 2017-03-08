@@ -1,14 +1,13 @@
 package org.hsweb.expands.request.http.simple;
 
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.hsweb.expands.request.RequestBuilder;
 import org.hsweb.expands.request.SimpleRequestBuilder;
 import org.hsweb.expands.request.http.HttpRequest;
 import org.hsweb.expands.request.http.HttpRequestGroup;
 import org.hsweb.expands.request.http.Response;
 import org.hsweb.expands.request.webservice.WebServiceRequest;
+import org.hsweb.expands.request.webservice.WebServiceRequestInvoker;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -97,9 +96,16 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testWebService() throws Exception {
-        WebServiceRequest request = builder.webService().wsdl("http://192.168.2.150:9003/webservices/dataCollection?wsdl");
+        WebServiceRequest request = builder
+                .webService()
+                .wsdl("http://192.168.2.150:9003/webservices/UserInfoService?wsdl");
+        WebServiceRequestInvoker invoker=request.request("getUserInfo");
+
+        invoker.invoke("admin").get();
+
         System.out.println(request.interfaces());
         System.out.println(request.services());
+
         for (String s : request.interfaces()) {
             Method[] methods = request.methods(s);
             for (Method method : methods) {
