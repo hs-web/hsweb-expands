@@ -1,6 +1,5 @@
 package org.hsweb.expands.request.http.simple;
 
-import org.apache.cxf.transport.http.Headers;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.hsweb.commons.StringUtils;

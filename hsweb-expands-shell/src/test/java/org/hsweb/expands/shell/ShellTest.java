@@ -64,20 +64,17 @@ public class ShellTest {
     }
 
     @Test
-    public void testDocker() {
-        for (int i = 0; i < 100; i++) {
-            int n = i;
-            new Thread(() -> {
-                try {
-                    Shell.build("docker run --rm --name mysql-test-" + n + " -e MYSQL_ROOT_PASSWORD=test mysql")
-                            // .onProcess((line, helper) -> System.out.println(line))
-                            .onError((line, helper) -> System.out.println(line))
-                            .exec();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        }
+    public void testDocker() throws IOException {
+//        Shell.build("docker run --rm --name mysql-test -e MYSQL_ROOT_PASSWORD=test mysql")
+//                .onProcess((line, helper) -> System.out.println(line))
+//                .onError((line, helper) -> System.out.println(line))
+//                .exec();
+
+        Shell.build("docker", "exec", "-i", "mysql-test", "mysql", "-hlocalhost", "-uroot", "-ptest", "mysql", "</test.sql")
+                .onProcess((line, helper) -> System.out.println(line))
+                .onError((line, helper) -> System.out.println(line))
+                .exec();
+
     }
 
     public static void main(String[] args) throws Exception {
