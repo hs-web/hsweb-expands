@@ -3,14 +3,16 @@ package org.hsweb.expands.shell;
 import org.hsweb.expands.shell.build.LinuxShellBuilder;
 import org.hsweb.expands.shell.build.WindowsShellBuilder;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 脚本执行器
@@ -19,6 +21,8 @@ import java.util.List;
 public class Shell {
     //默认字符集
     private static final String DEFAULT_ENCODE;
+
+    private static ExecutorService executorService = Executors.newCachedThreadPool();
 
     private String encode;
 
@@ -30,6 +34,8 @@ public class Shell {
 
     private List<Callback> errorCallback = new LinkedList<>();
 
+    private List<Consumer<ProcessHelper>> execBeforeCallback = new LinkedList<>();
+
     private static ShellBuilder shellBuilder;
 
     private boolean shutdown = false;
@@ -37,6 +43,8 @@ public class Shell {
     private File dir;
 
     private ProcessHelper helper;
+
+    private OutputStream stdin;
 
     static {
         String os = System.getProperty("os.name");
@@ -54,7 +62,20 @@ public class Shell {
         commands = new ArrayList<>(Arrays.asList(command));
         commands.addAll(Arrays.asList(more));
         dir = new File("./");
-        helper = () -> shutdown = true;
+        helper = new ProcessHelper() {
+            @Override
+            public void kill() {
+                shutdown = true;
+            }
+
+            @Override
+            public void sendMessage(byte[] msg) throws IOException {
+                if (null != stdin) {
+                    stdin.write(msg);
+                    stdin.flush();
+                }
+            }
+        };
     }
 
     public static Shell build(String command, String... more) {
@@ -98,7 +119,12 @@ public class Shell {
         return this;
     }
 
-    public int exec() throws IOException {
+    public Shell before(Consumer<ProcessHelper> consumer) {
+        execBeforeCallback.add(consumer);
+        return this;
+    }
+
+    public Result exec() throws IOException {
         if (this.commands.size() > 1) {
             String[] envp;
             if (this.env == null || this.env.isEmpty()) envp = new String[0];
@@ -114,9 +140,24 @@ public class Shell {
         }
     }
 
-    private int process(final Process process, String encode) {
+    public Future<Result> execAsyn() {
+        return executorService.submit(this::exec);
+    }
+
+    public void execAsyn(Consumer<Result> consumer) {
+        executorService.execute(() -> {
+            try {
+                consumer.accept(exec());
+            } catch (IOException e) {
+                consumer.accept(new Result(-1, e, e.getMessage()));
+            }
+        });
+    }
+
+    private Result process(final Process process, String encode) {
         try {
-            BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream(), encode));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), encode));
+            stdin = process.getOutputStream();
             new Thread(() -> {
                 try {
                     BufferedReader errorStream = new BufferedReader(new InputStreamReader(process.getErrorStream(), encode));
@@ -130,17 +171,21 @@ public class Shell {
                     errorCallback.forEach(consumer -> consumer.accept(e.getMessage(), helper));
                 }
             }).start();
+            execBeforeCallback.forEach(consumer -> consumer.accept(helper));
             String line;
-            while ((line = output.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 if (shutdown) process.destroyForcibly();
                 String tmp = line;
                 processCallback.forEach(consumer -> consumer.accept(tmp, helper));
             }
-            return process.waitFor();
+
+            return new Result(process.waitFor(), null, null);
         } catch (Exception e) {
             errorCallback.forEach(consumer -> consumer.accept(e.getMessage(), helper));
+            return new Result(-1, e, e.getMessage());
+        } finally {
+            stdin = null;
         }
-        return -1;
     }
 
 }

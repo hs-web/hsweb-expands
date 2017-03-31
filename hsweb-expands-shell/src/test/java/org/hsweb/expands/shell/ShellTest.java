@@ -28,8 +28,8 @@ public class ShellTest {
     @Test
     public void testLs() throws Exception {
         Shell.build("ls")
-                .onProcess((line, helper) -> System.out.println(line))
-                .exec();
+                .onProcess(Callback.sout)
+                .onError(Callback.sout).exec();
     }
 
     @Test
@@ -48,19 +48,28 @@ public class ShellTest {
 
     @Test
     public void testJavac() throws Exception {
+
         String code = "public class Test{" +
-                "public static void main(String args[]){" +
-                "   for(int i=0;i<args.length;i++){System.out.print(args[i]+\\\"\\\\t\\\");}" +
-                "   System.out.println();" +
+                "public static void main(String args[])throws Exception{" +
+                "   for(int i=0;i<args.length;i++){System.out.println(args[i]+\\\"\\\\t\\\");}" +
+                "     System.out.println(\\\"stdin:\\\"+System.in.read());" +
                 "}" +
                 "};";
         Shell.buildText("\necho \"" + code + "\">Test.java \n" +
-                "/usr/lib/jvm/jdk1.8.0_77/bin/javac -encoding utf-8 Test.java\n" +
-                "/usr/lib/jvm/jdk1.8.0_77/bin/java Test arg1 arg2")
+                "/home/zhouhao/lib/jdk1.8.0_77/bin/javac -encoding utf-8 Test.java\n" +
+                "/home/zhouhao/lib/jdk1.8.0_77/bin/java Test arg")
                 .dir("target")
-                .onProcess((line, helper) -> System.out.println(line))
+                .onProcess((line, helper) -> {
+                    System.out.println(line);
+                    try {
+                        helper.sendMessage(new byte[]{100});
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
                 .onError((line, helper) -> System.out.println(line))
-                .exec();
+                .execAsyn(System.out::println);
+        Thread.sleep(3000);
     }
 
     @Test
@@ -78,8 +87,13 @@ public class ShellTest {
     }
 
     public static void main(String[] args) throws Exception {
-        Shell.buildText("ifconfig | awk '/HWaddr/{print $5}'")
+//        Shell.buildText("ifconfig | awk '/HWaddr/{print $5}'")
+//                .onProcess((line, helper) -> System.out.println(line))
+//                .exec();
+
+        Shell.build("php", "/home/zhouhao/桌面/io.php", "1")
                 .onProcess((line, helper) -> System.out.println(line))
+                .onError((line, helper) -> System.out.println(line))
                 .exec();
     }
 

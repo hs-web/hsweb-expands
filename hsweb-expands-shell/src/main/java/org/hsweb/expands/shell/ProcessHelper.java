@@ -1,8 +1,15 @@
 package org.hsweb.expands.shell;
 
+import java.io.IOException;
+
 /**
- * Created by zhouhao on 16-6-28.
  */
 public interface ProcessHelper {
     void kill();
+
+    void sendMessage(byte[] msg) throws IOException;
+
+    default void sendMessage(String msg) throws IOException {
+        sendMessage(msg.getBytes());
+    }
 }
