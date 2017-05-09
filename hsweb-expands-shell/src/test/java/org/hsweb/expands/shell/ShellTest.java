@@ -3,11 +3,7 @@ package org.hsweb.expands.shell;
 import org.hsweb.commons.file.FileUtils;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by zhouhao on 16-6-28.
