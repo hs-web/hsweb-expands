@@ -101,21 +101,30 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
         }
     }
 
+
     protected void initHeader() {
         processor.nextRow();//创建1行
-        List<Header> headers = config.getHeaders();
+        List<org.hsweb.expands.office.excel.config.Header> headers = config.getHeaders();
         if (config.getStartWith() > 0) {
             for (int x = 0; x < config.getStartWith(); x++) {
                 for (int y = 0, len = headers.size(); y < len; y++) {
-                    Header header = headers.get(y);
+                    org.hsweb.expands.office.excel.config.Header header = headers.get(y);
+                    CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
+                    if (null != style) {
+                        sheet.setColumnWidth(y, style.getWidth());
+                    }
                     Cell cell = processor.nextCell();
                     initCell(x, y, cell, header.getField(), header.getTitle());
                 }
             }
         } else {
             for (int y = 0, len = headers.size(); y < len; y++) {
-                Header header = headers.get(y);
+                org.hsweb.expands.office.excel.config.Header header = headers.get(y);
                 Cell cell = processor.nextCell();
+                CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
+                if (null != style) {
+                    sheet.setColumnWidth(y, style.getWidth());
+                }
                 initCell(0, y, cell, header.getField(), header.getTitle());
             }
         }
