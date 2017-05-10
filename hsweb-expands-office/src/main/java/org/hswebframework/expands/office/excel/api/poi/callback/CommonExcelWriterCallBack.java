@@ -106,6 +106,10 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
             for (int x = 0; x < config.getStartWith(); x++) {
                 for (int y = 0, len = headers.size(); y < len; y++) {
                     org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
+                    CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
+                    if (null != style) {
+                        sheet.setColumnWidth(y, style.getWidth());
+                    }
                     Cell cell = processor.nextCell();
                     initCell(x, y, cell, header.getField(), header.getTitle());
                 }
@@ -114,6 +118,10 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
             for (int y = 0, len = headers.size(); y < len; y++) {
                 org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
                 Cell cell = processor.nextCell();
+                CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
+                if (null != style) {
+                    sheet.setColumnWidth(y, style.getWidth());
+                }
                 initCell(0, y, cell, header.getField(), header.getTitle());
             }
         }

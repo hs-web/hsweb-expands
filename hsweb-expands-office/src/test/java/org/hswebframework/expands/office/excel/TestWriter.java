@@ -258,7 +258,7 @@ public class TestWriter {
                 public CustomColumnStyle getColumnStyle(int column, String header) {
                     //设置姓名列的宽度
                     if ("姓名".equals(header)) {
-                        return new CustomColumnStyle(5000);
+                        return new CustomColumnStyle(Short.MAX_VALUE);
                     }
                     return null;
                 }
