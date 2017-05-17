@@ -4,14 +4,21 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFDataValidationHelper;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFDialogsheet;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.hsweb.commons.StringUtils;
 import org.hsweb.expands.office.excel.config.*;
 import org.hsweb.expands.office.excel.config.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -115,6 +122,10 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     }
                     Cell cell = processor.nextCell();
                     initCell(x, y, cell, header.getField(), header.getTitle());
+                    if (header.getStyle() != null) {
+                        CellStyle cellStyle = getStyle(header.getStyle());
+                        cell.setCellStyle(cellStyle);
+                    }
                 }
             }
         } else {
@@ -126,6 +137,10 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     sheet.setColumnWidth(y, style.getWidth());
                 }
                 initCell(0, y, cell, header.getField(), header.getTitle());
+                if (header.getStyle() != null) {
+                    CellStyle cellStyle = getStyle(header.getStyle());
+                    cell.setCellStyle(cellStyle);
+                }
             }
         }
 
@@ -137,6 +152,34 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
 
     protected void initCell(int r, int c, Cell cell, String header, Object value) {
         CustomCellStyle style;
+        if (value instanceof Map) {
+            Map<String, Object> mapVal = ((Map) value);
+            value = mapVal.get("value");
+            Object options = mapVal.get("options");
+            Object operator = mapVal.getOrDefault("operator", -1);
+
+            if (options instanceof Object[]) {
+                options = Arrays.asList(((Object[]) options));
+            }
+            if (options instanceof Collection) {
+                List<String> optionsList = new ArrayList<>(((Collection) options));
+                DataValidationHelper helper = null;
+                DataValidationConstraint dvConstraint;
+                if (sheet instanceof HSSFSheet) {
+                    helper = new HSSFDataValidationHelper(((HSSFSheet) sheet));
+                } else if (sheet instanceof XSSFSheet) {
+                    helper = new XSSFDataValidationHelper(((XSSFSheet) sheet));
+                }
+                if (helper == null)
+                    throw new UnsupportedOperationException(sheet.getClass().getName());
+                dvConstraint = helper.createExplicitListConstraint(optionsList.toArray(new String[optionsList.size()]));
+                dvConstraint.setOperator(StringUtils.toInt(operator));
+                CellRangeAddressList cellRangeAddressList = new CellRangeAddressList(cell.getRowIndex(), cell.getRowIndex(), c, c);
+
+                DataValidation dataValidation = helper.createValidation(dvConstraint, cellRangeAddressList);
+                sheet.addValidationData(dataValidation);
+            }
+        }
         //如果通过回掉未获取到自定义样式,则使用默认的样式进行处理
         if ((style = config.getCellStyle(r, c, header, value)) == null) {
             initCell(cell, value);

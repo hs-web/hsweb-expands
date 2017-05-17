@@ -1,6 +1,7 @@
 package org.hsweb.expands.office.excel;
 
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
 import org.hsweb.commons.file.FileUtils;
 import org.hsweb.expands.office.excel.api.poi.POIExcelApi;
 import org.hsweb.expands.office.excel.api.poi.callback.CommonExcelWriterCallBack;
@@ -24,8 +25,10 @@ public class TestWriter {
 
     @Before
     public void initData() {
+        CustomCellStyle style = new CustomCellStyle();
+        style.setFontColor(HSSFColor.RED.index);
         //创建模拟数据
-        headers.add(new Header("年级", "grade"));
+        headers.add(new Header("年级", "grade", style));
         headers.add(new Header("班级", "classes"));
         headers.add(new Header("性别", "sex"));
         headers.add(new Header("姓名", "name"));
@@ -39,7 +42,13 @@ public class TestWriter {
                 {
                     put("grade", "一年级");
                     put("classes", "2班");
-                    put("sex", "男");
+                    put("sex", new HashMap() {
+                        {
+                            put("value", "男");
+                            put("options", Arrays.asList("男", "女"));
+                            put("type", DataValidationConstraint.ValidationType.LIST);
+                        }
+                    });
                     put("name", "张三" + t);
                     put("age", t);
                     put("remark", "测试2");

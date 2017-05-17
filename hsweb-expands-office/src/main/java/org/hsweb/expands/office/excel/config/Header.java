@@ -10,12 +10,20 @@ public class Header implements Comparable<Header> {
 
     private int sort = -1;
 
+    private CustomCellStyle style;
+
     public Header() {
     }
 
     public Header(String title, String field) {
         this.title = title;
         this.field = field;
+    }
+
+    public Header(String title, String field, CustomCellStyle style) {
+        this.title = title;
+        this.field = field;
+        this.style = style;
     }
 
     public String getTitle() {
@@ -40,6 +48,14 @@ public class Header implements Comparable<Header> {
 
     public void setSort(int sort) {
         this.sort = sort;
+    }
+
+    public CustomCellStyle getStyle() {
+        return style;
+    }
+
+    public void setStyle(CustomCellStyle style) {
+        this.style = style;
     }
 
     @Override
