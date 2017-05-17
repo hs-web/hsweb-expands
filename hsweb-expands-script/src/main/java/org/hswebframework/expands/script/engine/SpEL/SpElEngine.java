@@ -6,13 +6,14 @@ import org.hswebframework.expands.script.engine.ListenerSupportEngine;
 import org.hswebframework.expands.script.engine.ScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,6 +26,8 @@ public class SpElEngine extends ListenerSupportEngine {
     protected final Map<String, SpelScriptContext> cache = new ConcurrentHashMap<>();
 
     protected final ExpressionParser parser = new SpelExpressionParser();
+
+    private List<ContextCall> contextCalls = new ArrayList<>();
 
     @Override
     public boolean compiled(String id) {
@@ -73,10 +76,11 @@ public class SpElEngine extends ListenerSupportEngine {
                 scriptContext = cache.get(id);
                 param = new HashMap<>(param);
                 param.putAll(getGlobalVariable());
-                EvaluationContext context = new StandardEvaluationContext(param);
+                StandardEvaluationContext context = new StandardEvaluationContext(param);
                 for (Map.Entry<String, Object> entry : param.entrySet()) {
                     context.setVariable(entry.getKey(), entry.getValue());
                 }
+                contextCalls.forEach(contextCall -> contextCall.init(context));
                 Object obj = scriptContext.getScript().getValue(context);
                 result.setSuccess(true);
                 result.setResult(obj);
@@ -92,6 +96,14 @@ public class SpElEngine extends ListenerSupportEngine {
         }
         doListenerAfter(scriptContext, result);
         return result;
+    }
+
+    public void addContextCall(ContextCall contextCall) {
+        this.contextCalls.add(contextCall);
+    }
+
+    public interface ContextCall {
+        void init(StandardEvaluationContext context);
     }
 
     class SpelScriptContext extends ScriptContext {
