@@ -156,8 +156,6 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
             Map<String, Object> mapVal = ((Map) value);
             value = mapVal.get("value");
             Object options = mapVal.get("options");
-            Object operator = mapVal.getOrDefault("operator", -1);
-
             if (options instanceof Object[]) {
                 options = Arrays.asList(((Object[]) options));
             }
@@ -173,7 +171,6 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                 if (helper == null)
                     throw new UnsupportedOperationException(sheet.getClass().getName());
                 dvConstraint = helper.createExplicitListConstraint(optionsList.toArray(new String[optionsList.size()]));
-                dvConstraint.setOperator(StringUtils.toInt(operator));
                 CellRangeAddressList cellRangeAddressList = new CellRangeAddressList(cell.getRowIndex(), cell.getRowIndex(), c, c);
 
                 DataValidation dataValidation = helper.createValidation(dvConstraint, cellRangeAddressList);
