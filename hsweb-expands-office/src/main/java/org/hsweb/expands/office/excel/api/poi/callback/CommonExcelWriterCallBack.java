@@ -9,6 +9,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFDialogsheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -40,6 +41,7 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
     private ExcelWriterProcessor processor;
 
     private Sheet sheet;
+    private Sheet hide;
 
     @Override
     public void render(ExcelWriterProcessor processor) {
@@ -147,8 +149,21 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
     }
 
     protected void initCell(Cell cell, Object value) {
+        if (value == null) {
+            cell.setCellValue("");
+            return;
+        }
+//        if (value instanceof Double) {
+//            cell.setCellValue(((Double) value));
+//        } else if (value instanceof Date) {
+//            cell.setCellValue(((Date) value));
+//        } else {
         cell.setCellValue(String.valueOf(value));
+//        }
+
     }
+
+    private Map<Integer, Row> cache = new HashMap<>();
 
     protected void initCell(int r, int c, Cell cell, String header, Object value) {
         CustomCellStyle style;
@@ -170,7 +185,24 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                 }
                 if (helper == null)
                     throw new UnsupportedOperationException(sheet.getClass().getName());
-                dvConstraint = helper.createExplicitListConstraint(optionsList.toArray(new String[optionsList.size()]));
+                if (hide == null) {
+                    hide = sheet.getWorkbook().createSheet("hide");
+                    sheet.getWorkbook().setSheetHidden(sheet.getWorkbook().getSheetIndex(hide), true);
+                }
+                Row row = cache.computeIfAbsent(optionsList.hashCode(), k -> hide.createRow(cache.size()));
+                for (int i = 0; i < optionsList.size(); i++) {
+                    Cell optionCell = row.createCell(i);
+                    initCell(optionCell, optionsList.get(i));
+                }
+                Name name = hide.getWorkbook().getName(header);
+                if (name == null) {
+                    name = hide.getWorkbook().createName();
+                    name.setRefersToFormula("hide!$A$" + (row.getRowNum() + 1) + ":$" + CellReference.convertNumToColString(optionsList.size()) + "$" + (row.getRowNum() + 1));
+                }
+                name.setNameName(header);
+//                helper.createCustomConstraint("hide!" + address);
+//                dvConstraint = helper.createExplicitListConstraint(optionsList.toArray(new String[optionsList.size()]));
+                dvConstraint = helper.createFormulaListConstraint("hide!" + name.getNameName());
                 CellRangeAddressList cellRangeAddressList = new CellRangeAddressList(cell.getRowIndex(), cell.getRowIndex(), c, c);
 
                 DataValidation dataValidation = helper.createValidation(dvConstraint, cellRangeAddressList);
