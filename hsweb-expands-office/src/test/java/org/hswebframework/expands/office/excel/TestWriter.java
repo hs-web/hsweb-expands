@@ -1,6 +1,7 @@
 package org.hswebframework.expands.office.excel;
 
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Color;
 import org.hswebframework.expands.office.excel.api.poi.POIExcelApi;
 import org.hswebframework.expands.office.excel.api.poi.callback.CommonExcelWriterCallBack;
 import org.hswebframework.expands.office.excel.config.*;
@@ -24,8 +25,10 @@ public class TestWriter {
 
     @Before
     public void initData() {
+        CustomCellStyle cellStyle = new CustomCellStyle();
+        cellStyle.setFontColor(HSSFColor.BLUE.index);
         //创建模拟数据
-        headers.add(new Header("年级", "grade"));
+        headers.add(new Header("年级", "grade", cellStyle));
         headers.add(new Header("班级", "classes"));
         headers.add(new Header("性别", "sex"));
         headers.add(new Header("姓名", "name"));
@@ -280,7 +283,7 @@ public class TestWriter {
             config2.setHeaders(headers);
             config2.setDatas(datas);
             //写出
-            ExcelIO.write(outputStream, config,config2);
+            ExcelIO.write(outputStream, config, config2);
             outputStream.flush();
         }
     }

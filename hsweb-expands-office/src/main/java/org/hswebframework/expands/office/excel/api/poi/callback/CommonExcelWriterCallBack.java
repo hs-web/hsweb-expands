@@ -112,6 +112,11 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     }
                     Cell cell = processor.nextCell();
                     initCell(x, y, cell, header.getField(), header.getTitle());
+                    CustomCellStyle titleStyle = header.getStyle();
+                    if (null != titleStyle) {
+                        CellStyle cacheStyle = getStyle(titleStyle);
+                        cell.setCellStyle(cacheStyle);
+                    }
                 }
             }
         } else {
@@ -123,6 +128,12 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     sheet.setColumnWidth(y, style.getWidth());
                 }
                 initCell(0, y, cell, header.getField(), header.getTitle());
+                CustomCellStyle titleStyle = header.getStyle();
+                if (null != titleStyle) {
+                    CellStyle cacheStyle = getStyle(titleStyle);
+                    cell.setCellStyle(cacheStyle);
+                }
+
             }
         }
 

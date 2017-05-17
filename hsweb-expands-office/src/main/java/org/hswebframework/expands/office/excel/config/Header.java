@@ -8,6 +8,8 @@ public class Header implements Comparable<Header> {
 
     private String field;
 
+    private CustomCellStyle style;
+
     private int sort = -1;
 
     public Header() {
@@ -16,6 +18,12 @@ public class Header implements Comparable<Header> {
     public Header(String title, String field) {
         this.title = title;
         this.field = field;
+    }
+
+    public Header(String title, String field, CustomCellStyle style) {
+        this.title = title;
+        this.field = field;
+        this.style = style;
     }
 
     public String getTitle() {
@@ -45,5 +53,13 @@ public class Header implements Comparable<Header> {
     @Override
     public int compareTo(Header o) {
         return ((Integer) sort).compareTo(o.getSort());
+    }
+
+    public CustomCellStyle getStyle() {
+        return style;
+    }
+
+    public void setStyle(CustomCellStyle style) {
+        this.style = style;
     }
 }
