@@ -44,13 +44,25 @@ public class TestWriter {
                     put("classes", "2班");
                     put("sex", new HashMap() {
                         {
+                            String[] sex = new String[100];
+                            for (int i = 0; i < sex.length; i++) {
+                                sex[i] = "男" + i;
+                            }
                             put("value", "男");
-                            put("options", Arrays.asList("男", "女"));
-                            put("type", DataValidationConstraint.ValidationType.LIST);
+                            put("options", sex);
+                        }
+                    });
+                    put("age", new HashMap() {
+                        {
+                            Integer[] sex = new Integer[100];
+                            for (int i = 0; i < sex.length; i++) {
+                                sex[i] = i + 1;
+                            }
+                            put("value", "1");
+                            put("options", sex);
                         }
                     });
                     put("name", "张三" + t);
-                    put("age", t);
                     put("remark", "测试2");
                 }
             });
