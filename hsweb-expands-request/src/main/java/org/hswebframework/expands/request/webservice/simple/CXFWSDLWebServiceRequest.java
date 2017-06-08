@@ -8,7 +8,7 @@ import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.wsdlto.WSDLToJava;
 import org.hswebframework.expands.request.webservice.WebServiceRequest;
 import org.hswebframework.expands.request.webservice.WebServiceRequestInvoker;
-import org.hswebframwork.utils.file.FileUtils;
+import org.hswebframework.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,7 +3,7 @@ package org.hswebframework.expands.script.engine.js;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hswebframework.expands.script.engine.common.CommonScriptEngine;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 
 import javax.script.CompiledScript;
 

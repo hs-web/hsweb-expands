@@ -4,7 +4,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.hswebframwork.utils.file.FileUtils;
+import org.hswebframework.utils.file.FileUtils;
 import org.junit.Test;
 
 import java.io.FileInputStream;

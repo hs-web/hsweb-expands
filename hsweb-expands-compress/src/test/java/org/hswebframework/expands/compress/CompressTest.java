@@ -1,7 +1,7 @@
 package org.hswebframework.expands.compress;
 
 import org.hswebframework.expands.compress.zip.ZIPReader;
-import org.hswebframwork.utils.file.FileUtils;
+import org.hswebframework.utils.file.FileUtils;
 import org.junit.Assert;
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class CompressTest {
         ZIPReader reader = Compress.unzip(FileUtils.getResourceAsFile("test.zip"));
         List<String> files = reader.ls();
         Assert.assertEquals(files.size(), 2);
-        reader.unpack("test",new File("target/test"));
+        reader.unpack("test", new File("target/test"));
     }
 
     @org.junit.Test

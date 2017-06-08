@@ -4,7 +4,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.hswebframework.expands.office.word.support.template.expression.GroovyExpressionRunner;
 import org.hswebframework.expands.office.word.support.template.expression.WordHelper;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
 
 import java.util.List;

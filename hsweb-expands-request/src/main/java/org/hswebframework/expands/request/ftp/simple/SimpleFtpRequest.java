@@ -4,7 +4,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.hswebframework.expands.request.ftp.FtpRequest;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,8 +3,8 @@ package org.hswebframework.expands.office.excel.wrapper;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.hswebframwork.utils.ClassUtils;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.ClassUtils;
+import org.hswebframework.utils.StringUtils;
 
 import java.beans.PropertyDescriptor;
 

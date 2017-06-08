@@ -5,7 +5,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.Version;
 import org.hswebframework.expands.template.TemplateRender;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 
 import java.io.StringWriter;
 

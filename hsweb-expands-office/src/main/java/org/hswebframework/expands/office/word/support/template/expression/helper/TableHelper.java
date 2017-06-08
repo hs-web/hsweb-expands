@@ -3,7 +3,7 @@ package org.hswebframework.expands.office.word.support.template.expression.helpe
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.hswebframework.expands.office.word.support.template.expression.WordHelper;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 
 /**
  * word表格渲染辅助器

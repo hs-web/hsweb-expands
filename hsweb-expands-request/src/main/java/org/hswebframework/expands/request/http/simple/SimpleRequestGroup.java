@@ -5,7 +5,7 @@ import org.apache.http.HttpResponse;
 import org.hswebframework.expands.request.http.HttpRequest;
 import org.hswebframework.expands.request.http.HttpRequestGroup;
 import org.hswebframework.expands.request.http.Response;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.Arrays;

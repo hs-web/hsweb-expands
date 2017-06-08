@@ -1,7 +1,7 @@
 package org.hswebframework.expands.office.word.support.template;
 
 import org.hswebframework.expands.office.word.api.poi.POIWordApi4Docx;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;

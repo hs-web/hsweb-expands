@@ -8,8 +8,8 @@ import org.hswebframework.expands.office.word.support.template.expression.helper
 import org.hswebframework.expands.script.engine.DynamicScriptEngine;
 import org.hswebframework.expands.script.engine.DynamicScriptEngineFactory;
 import org.hswebframework.expands.script.engine.ExecuteResult;
-import org.hswebframwork.utils.ListUtils;
-import org.hswebframwork.utils.StringUtils;
+import org.hswebframework.utils.ListUtils;
+import org.hswebframework.utils.StringUtils;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
 

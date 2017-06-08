@@ -2,7 +2,7 @@ package org.hswebframework.expands.office.word;
 
 
 import org.hswebframework.expands.office.word.support.template.DOCXTemplateReader;
-import org.hswebframwork.utils.file.FileUtils;
+import org.hswebframework.utils.file.FileUtils;
 
 import java.io.InputStream;
 
