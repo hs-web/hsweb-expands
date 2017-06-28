@@ -13,9 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.apache.poi.ss.usermodel.DateUtil.isADateFormat;
 
 /**
  * POI的excel读取实现
@@ -86,17 +89,35 @@ public class POIExcelApi implements ExcelApi {
             case HSSFCell.CELL_TYPE_BOOLEAN:
                 return cell.getBooleanCellValue();
             case HSSFCell.CELL_TYPE_NUMERIC:
-                if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                if (isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 }
-                double value = cell.getNumericCellValue();
-                if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00")) return new Double(value).intValue();
-                return cell.getNumericCellValue();
+                BigDecimal value = new BigDecimal(cell.getNumericCellValue());
+                if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00"))
+                    return value.intValue();
+                return value;
             case HSSFCell.CELL_TYPE_STRING:
                 return cell.getRichStringCellValue().getString();
             default:
-                return "";
+                return cell.getStringCellValue();
         }
+    }
+
+    public static boolean isCellDateFormatted(Cell cell) {
+        if (cell == null) return false;
+        boolean bDate = false;
+
+        double d = cell.getNumericCellValue();
+        if (DateUtil.isValidExcelDate(d)) {
+            CellStyle style = cell.getCellStyle();
+            if (style == null) return false;
+            int i = style.getDataFormat();
+            if (i == 58 || i == 31) return true;
+            String f = style.getDataFormatString();
+            f = f.replaceAll("[\"|\']", "").replaceAll("[年|月|日|时|分|秒|毫秒|微秒]", "");
+            bDate = isADateFormat(i, f);
+        }
+        return bDate;
     }
 
     @Override
