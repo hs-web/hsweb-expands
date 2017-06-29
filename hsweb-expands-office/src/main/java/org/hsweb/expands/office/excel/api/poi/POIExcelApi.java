@@ -85,9 +85,9 @@ public class POIExcelApi implements ExcelApi {
         if (cell == null)
             return "";
         switch (cell.getCellType()) {
-            case HSSFCell.CELL_TYPE_BOOLEAN:
+            case Cell.CELL_TYPE_BOOLEAN:
                 return cell.getBooleanCellValue();
-            case HSSFCell.CELL_TYPE_NUMERIC:
+            case Cell.CELL_TYPE_NUMERIC:
                 if (isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 }
@@ -95,12 +95,32 @@ public class POIExcelApi implements ExcelApi {
                 if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00"))
                     return value.intValue();
                 return value;
-            case HSSFCell.CELL_TYPE_STRING:
+            case Cell.CELL_TYPE_STRING:
                 return cell.getRichStringCellValue().getString();
+            case Cell.CELL_TYPE_FORMULA:
+                FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+                CellValue cellValue = evaluator.evaluate(cell);
+                switch (cellValue.getCellType()) {
+                    case Cell.CELL_TYPE_BOOLEAN:
+                        return cell.getBooleanCellValue();
+                    case Cell.CELL_TYPE_NUMERIC:
+                        if (isCellDateFormatted(cell)) {
+                            return cell.getDateCellValue();
+                        }
+                        value = new BigDecimal(cell.getNumericCellValue());
+                        if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00"))
+                            return value.intValue();
+                        return value;
+                    case Cell.CELL_TYPE_BLANK:
+                        return "";
+                    default:
+                        return cellValue.getStringValue();
+                }
             default:
                 return cell.getStringCellValue();
         }
     }
+
 
     public static boolean isCellDateFormatted(Cell cell) {
         if (cell == null) return false;
