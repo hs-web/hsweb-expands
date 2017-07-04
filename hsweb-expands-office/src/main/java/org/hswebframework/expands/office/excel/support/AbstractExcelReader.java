@@ -32,7 +32,7 @@ public abstract class AbstractExcelReader<T> implements ExcelReader<T> {
 
             //行缓存,一行的数据缓存起来,读完一样进行对象包装后,清空,进行下一行读取
             List<ExcelReaderCallBack.CellContent> temp = new LinkedList<>();
-            private int sheet =0;
+            private int sheet = 0;
 
             @Override
             public void onCell(ExcelReaderCallBack.CellContent content) throws Exception {
@@ -52,10 +52,15 @@ public abstract class AbstractExcelReader<T> implements ExcelReader<T> {
                     //如果该行为表头
                     header.add(String.valueOf(content.getValue()));
                 } else if (header.size() != 0) { //有表头才读取
+                    getWrapper().setup(header, sheet);
+                    if (getWrapper().isShutdown()) {
+                        shutdown();
+                        return;
+                    }
                     temp.add(content);
                     //如果是最后一列，则代表本行已经读取完毕,调用包装器进行本行对象的实例化。
                     if (content.isLast()) {
-                        dataList.add(wrapperRow(header, temp,sheet));
+                        dataList.add(wrapperRow(header, temp, sheet));
                         temp.clear();
                     }
                 }
@@ -73,7 +78,7 @@ public abstract class AbstractExcelReader<T> implements ExcelReader<T> {
      * @return 包装结果
      * @throws Exception
      */
-    protected T wrapperRow(List<String> headers, List<ExcelReaderCallBack.CellContent> contents,int sheet) throws Exception {
+    protected T wrapperRow(List<String> headers, List<ExcelReaderCallBack.CellContent> contents, int sheet) throws Exception {
         T instance = getWrapper().newInstance(sheet);//创建实例
         for (int i = 0, len = contents.size(); i < len; i++) {
             String header = null;

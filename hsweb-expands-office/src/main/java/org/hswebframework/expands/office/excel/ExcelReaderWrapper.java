@@ -1,5 +1,7 @@
 package org.hswebframework.expands.office.excel;
 
+import java.util.List;
+
 /**
  * excel读取结果包装器,用于将一行数据包装为一个java对象
  * Created by 浩 on 2015-12-07 0007.
@@ -46,4 +48,7 @@ public interface ExcelReaderWrapper<T> {
      */
     void wrapperDone(T instance);
 
+    default void setup(List<String> headers, int sheet) {
+
+    }
 }
