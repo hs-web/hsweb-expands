@@ -1,7 +1,5 @@
 package org.hswebframework.expands.office.excel.api.poi;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hswebframework.expands.office.excel.ExcelApi;
@@ -46,6 +44,7 @@ public class POIExcelApi implements ExcelApi {
             Sheet sheet = wbs.getSheetAt(x);
             // 得到总行数
             int rowNum = sheet.getLastRowNum();
+            if (rowNum <= 0) continue;
             Row row = sheet.getRow(0);
             int colNum = row.getPhysicalNumberOfCells();
             for (int i = 0; i <= rowNum; i++) {
