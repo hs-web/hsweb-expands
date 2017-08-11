@@ -63,7 +63,7 @@ public class POIExcelApi implements ExcelApi {
                     cellContent.setSheet(x);
                     cellContent.setRow(i);
                     cellContent.setColumn(j);
-                    Object value = row == null ? null : cell2Object(cell);
+                    Object value = cell == null ? null : cell2Object(cell);
                     cellContent.setValue(value);
                     //调用回掉
                     callBack.onCell(cellContent);
