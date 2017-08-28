@@ -138,7 +138,7 @@ public class CXFWSDLWebServiceRequest implements WebServiceRequest {
 
     public CXFWSDLWebServiceRequest customFactory(Consumer<JaxWsProxyFactoryBean> consumer) {
         this.factoryConsumers.add(consumer);
-        return this
+        return this;
     }
 
     @Override
