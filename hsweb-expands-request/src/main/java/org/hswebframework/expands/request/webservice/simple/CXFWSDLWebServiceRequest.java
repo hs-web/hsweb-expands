@@ -8,17 +8,18 @@ import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.wsdlto.WSDLToJava;
 import org.hswebframework.expands.request.webservice.WebServiceRequest;
 import org.hswebframework.expands.request.webservice.WebServiceRequestInvoker;
-import org.hswebframework.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.tools.*;
-import java.io.*;
+import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class CXFWSDLWebServiceRequest implements WebServiceRequest {
 
@@ -32,6 +33,8 @@ public class CXFWSDLWebServiceRequest implements WebServiceRequest {
     private        Map<String, Class> serviceMap   = new HashMap<>();
     private        Map<String, Class> interfaceMap = new HashMap<>();
     private static String             classpath    = "";
+
+    private List<Consumer<JaxWsProxyFactoryBean>> factoryConsumers = new ArrayList<>();
 
     static {
         classpath = System.getProperty("java.class.path");
@@ -99,22 +102,22 @@ public class CXFWSDLWebServiceRequest implements WebServiceRequest {
 //        }
 //    }
 
-    public class JavaClassObject extends SimpleJavaFileObject {
-
-        public JavaClassObject(String name, JavaFileObject.Kind kind) {
-            super(URI.create(name + kind.extension), kind);
-        }
-
-        @Override
-        public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-            return FileUtils.reader2String(uri.getPath());
-        }
-
-        @Override
-        public OutputStream openOutputStream() throws IOException {
-            return new FileOutputStream(uri.getPath());
-        }
-    }
+//    public class JavaClassObject extends SimpleJavaFileObject {
+//
+//        public JavaClassObject(String name, JavaFileObject.Kind kind) {
+//            super(URI.create(name + kind.extension), kind);
+//        }
+//
+//        @Override
+//        public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+//            return FileUtils.reader2String(uri.getPath());
+//        }
+//
+//        @Override
+//        public OutputStream openOutputStream() throws IOException {
+//            return new FileOutputStream(uri.getPath());
+//        }
+//    }
 
     @Override
     public WebServiceRequestInvoker request(String method) throws NoSuchMethodException {
@@ -133,6 +136,11 @@ public class CXFWSDLWebServiceRequest implements WebServiceRequest {
         return interfaceClass.getMethods();
     }
 
+    public CXFWSDLWebServiceRequest customFactory(Consumer<JaxWsProxyFactoryBean> consumer) {
+        this.factoryConsumers.add(consumer);
+        return this
+    }
+
     @Override
     public WebServiceRequestInvoker request(String interfaceName, String service, String method) throws NoSuchMethodException {
         Class serviceClass = serviceMap.get(service);
@@ -142,6 +150,8 @@ public class CXFWSDLWebServiceRequest implements WebServiceRequest {
         JaxWsProxyFactoryBean svr = new JaxWsProxyFactoryBean();
         svr.setServiceClass(interfaceClass);
         svr.setAddress(url);
+        //实现自定义JaxWsProxyFactoryBean属性
+        factoryConsumers.forEach(consumer -> consumer.accept(svr));
         Object shareWebService = svr.create();
         Method[] methods = interfaceClass.getMethods();
         Method method1 = null;
