@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SimpleFtpRequest implements FtpRequest {
     private Logger logger = LoggerFactory.getLogger(FtpRequest.class);
@@ -35,6 +36,11 @@ public class SimpleFtpRequest implements FtpRequest {
             ftp.disconnect();
             throw new IOException("建立ftp链接失败:" + replyCode);
         }
+    }
+
+    public FtpRequest setting(Consumer<FTPClient> clientConsumer) {
+        clientConsumer.accept(ftp);
+        return this;
     }
 
     @Override

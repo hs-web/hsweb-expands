@@ -1,5 +1,6 @@
 package org.hswebframework.expands.request.ftp;
 
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created by zhouhao on 16-6-24.
@@ -41,4 +43,5 @@ public interface FtpRequest {
 
     void download(String name, OutputStream outputStream) throws IOException;
 
+    FtpRequest setting(Consumer<FTPClient> clientConsumer);
 }
