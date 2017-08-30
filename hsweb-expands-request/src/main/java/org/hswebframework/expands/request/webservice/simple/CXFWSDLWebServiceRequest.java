@@ -56,7 +56,7 @@ public class CXFWSDLWebServiceRequest implements WebServiceRequest {
         if (logger.isDebugEnabled())
             logger.debug("wsdl to java:{}->{}", wsdl, SRC_DIR);
         CommandInterfaceUtils.commandCommonMain();
-        WSDLToJava w2j = new WSDLToJava(new String[]{"-client", "-d", SRC_DIR, "-compile", "-classdir", BIN_DIR, url});
+        WSDLToJava w2j = new WSDLToJava(new String[]{"-client", "-d", SRC_DIR, "-compile", "-classdir", BIN_DIR, wsdl});
         ToolContext toolContext = new ToolContext();
         w2j.run(toolContext);
         // buildClass();
