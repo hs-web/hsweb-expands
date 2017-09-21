@@ -27,19 +27,11 @@ public class TestReader {
      */
     @Test
     public void testRead2Map() throws Exception {
-        try (InputStream in = new FileInputStream("/home/zhouhao/桌面/食品经营企业new2.xlsx")) {
-            List<Map<String, Object>> dataList = ExcelIO.read(in, new HashMapWrapper() {
-                @Override
-                public void setup(List<String> headers, int sheet) {
-                    if (sheet != 0) shutdown();
-                }
-            });
-            dataList.forEach(map -> {
-                System.out.println(map);
-            });
+        try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
+            List<Map<String, Object>> dataList = ExcelIO.read2Map(in);
+            dataList.forEach(System.out::println);
         }
     }
-
     /**
      * 测试将excel表格转为多个map
      */
@@ -50,7 +42,6 @@ public class TestReader {
             dataList.forEach(System.out::println);
         }
     }
-
     /**
      * 有合并行的excel读取示例
      */
