@@ -1,13 +1,14 @@
 package org.hswebframework.expands.script.engine;
 
+import org.hswebframework.expands.script.engine.common.CommonScriptEngine;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.SimpleBindings;
+import java.util.*;
 
 public class DynamicScriptEngineTest {
 
@@ -15,7 +16,7 @@ public class DynamicScriptEngineTest {
     public void testJava() throws Exception {
         DynamicScriptEngine engine = DynamicScriptEngineFactory.getEngine("java");
         engine.compile("111", "package test.myTest;" +
-                "\npublic class Test implements org.hsweb.expands.script.engine.java.Executor{\n" +
+                "\npublic class Test implements org.hswebframework.expands.script.engine.java.Executor{\n" +
                 "   public  Object execute(java.util.Map<String, Object> param){" +
                 "       param.put(\"test\",\"测试\");" +
                 "       return param;" +
@@ -65,11 +66,27 @@ public class DynamicScriptEngineTest {
 
     @Test
     public void testJavascript() throws Exception {
-        DynamicScriptEngine engine = DynamicScriptEngineFactory.getEngine("js");
+        DynamicScriptEngine engine = DynamicScriptEngineFactory.getEngine("groovy");
+        Bindings bindings = ((CommonScriptEngine) engine).getUtilBindings();
+        ((CommonScriptEngine) engine).setUtilBindings(new SimpleBindings(bindings) {
+            @Override
+            public Object get(Object key) {
+                return super.get(key);
+            }
 
+            @Override
+            public boolean containsKey(Object key) {
+                return super.containsKey(key);
+            }
+
+            @Override
+            public Set<Entry<String, Object>> entrySet() {
+                return super.entrySet();
+            }
+        });
         engine.addGlobalVariable(Collections.singletonMap("logger", LoggerFactory.getLogger("org.hsweb.script.javascript")));
 
-        engine.compile("test", "logger.info('test')");
+        engine.compile("test", "logger.error('test')");
         engine.execute("test").getIfSuccess();
     }
 

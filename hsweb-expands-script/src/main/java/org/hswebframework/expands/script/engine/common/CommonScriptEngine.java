@@ -79,7 +79,7 @@ public abstract class CommonScriptEngine extends ListenerSupportEngine {
 
     @Override
     public void addListener(ScriptListener scriptListener) {
-        if (scriptListeners != null) {
+        if (scriptListeners == null) {
             scriptListeners = new LinkedList<>();
         }
         scriptListeners.add(scriptListener);
@@ -138,5 +138,13 @@ public abstract class CommonScriptEngine extends ListenerSupportEngine {
         public CompiledScript getScript() {
             return script;
         }
+    }
+
+    public Bindings getUtilBindings() {
+        return utilBindings;
+    }
+
+    public void setUtilBindings(Bindings utilBindings) {
+        this.utilBindings = utilBindings;
     }
 }

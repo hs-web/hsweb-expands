@@ -96,7 +96,8 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testWebService() throws Exception {
-        WebServiceRequest request = builder.webService().wsdl("http://192.168.2.150:9003/webservices/dataCollection?wsdl");
+        WebServiceRequest request = builder.webService()
+                .wsdl("/home/zhouhao/云文档/项目/apsp/接口文档/WSDL/查询密码验证.wsdl");
         System.out.println(request.interfaces());
         System.out.println(request.services());
         for (String s : request.interfaces()) {
