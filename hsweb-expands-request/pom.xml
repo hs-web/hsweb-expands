@@ -5,14 +5,17 @@
     <parent>
         <artifactId>hsweb-expands</artifactId>
         <groupId>org.hswebframework</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hsweb-expands-request</artifactId>
+    <url>https://github.com/hs-web/hsweb-expands/${artifactId}</url>
+    <description>请求模拟工具:http,ftp,webservice</description>
     <properties>
         <cxf.version>3.1.7</cxf.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

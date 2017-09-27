@@ -7,7 +7,7 @@
     <groupId>org.hswebframework</groupId>
     <artifactId>hsweb-expands</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
     <modules>
         <module>hsweb-expands-script</module>
         <module>hsweb-expands-office</module>
@@ -19,8 +19,8 @@
     </modules>
 
 
-    <name>${project.groupId}:${project.artifactId}</name>
-    <url>http://www.hswebframework.org</url>
+    <name>${project.artifactId}</name>
+    <url>https://github.com/hs-web/hsweb-expands</url>
     <description>hsweb拓展工具集</description>
 
     <licenses>

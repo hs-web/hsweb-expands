@@ -5,11 +5,14 @@
     <parent>
         <artifactId>hsweb-expands</artifactId>
         <groupId>org.hswebframework</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hsweb-expands-office</artifactId>
+    <url>https://github.com/hs-web/hsweb-expands/${artifactId}</url>
+    <description>office文档处理工具,导入导出excel,模板导出excel,word</description>
+
     <dependencies>
         <dependency>
             <groupId>org.hswebframework</groupId>
