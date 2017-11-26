@@ -35,19 +35,11 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testHttpDownload() throws Exception {
-        Document document2 = Jsoup.parse(new URL("https://www.baidu.com"), 5000);
-        System.out.println(document2);
-        Document document = Jsoup.parse(new URL("http://tm.22.cn/check/search/?type=1&state=0&tid=0&keyword=%E8%B1%86%E8%85%90&direction=0&page=1"), 1000);
-        Elements elements = document.select(".content-inq-con img");
-        for (Element element : elements) {
-            System.out.println("下载图片:" + element);
-            String src = element.attr("src");
-            File file = new File("target/" + System.currentTimeMillis() + ".jpg");
-            builder.http(src).download().write(file);
-            src = "/download/file/" + file.getName();
-            element.attr("src", src);
-            System.out.println("替换图片:" + element);
-        }
+        long t = System.currentTimeMillis();
+       builder.http("http://192.168.3.2:8898/upload/20171126/382982608382898.mp4")
+               .download()
+               .write(new File("target/1.mp4"));
+        System.out.println(System.currentTimeMillis()-t);
     }
 
     @Test

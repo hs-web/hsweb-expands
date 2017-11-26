@@ -56,6 +56,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         if (httpClient == null) {
             HttpClientBuilder builder = HttpClientBuilder.create();
             httpClient = builder.build();
+
         }
     }
 
@@ -203,11 +204,14 @@ public abstract class AbstractHttpRequest implements HttpRequest {
                 if (response == null) get();
                 HttpEntity entity = response.getEntity();
                 if (response.getStatusLine().getStatusCode() == 200) {
+
                     InputStream inputStream = entity.getContent();
-                    int b;
-                    while ((b = inputStream.read()) != -1) {
-                        outputStream.write(b);
+                   byte[] buffer=new byte[4096];
+                   int read;
+                    while ((read= inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer,0,read);
                     }
+                    outputStream.flush();
                     EntityUtils.consumeQuietly(entity);
                     return null;
                 } else {
@@ -225,6 +229,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     @Override
     public Response upload(String paramName, InputStream inputStream) throws IOException {
         HttpPost post = new HttpPost(url);
+
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                 .addPart(paramName, new InputStreamBody(inputStream, paramName));
         params.forEach(builder::addTextBody);
