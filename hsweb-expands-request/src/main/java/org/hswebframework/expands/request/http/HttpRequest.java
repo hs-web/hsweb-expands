@@ -1,6 +1,7 @@
 package org.hswebframework.expands.request.http;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.Closeable;
@@ -15,7 +16,7 @@ import java.util.Map;
  */
 public interface HttpRequest extends Closeable {
 
-    HttpRequest before(Callback<HttpUriRequest> callback);
+    HttpRequest before(Callback<HttpRequestBase> callback);
 
     HttpRequest after(Callback<HttpResponse> callback);
 

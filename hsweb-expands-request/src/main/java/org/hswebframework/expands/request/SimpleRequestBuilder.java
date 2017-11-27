@@ -1,5 +1,6 @@
 package org.hswebframework.expands.request;
 
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.hswebframework.expands.request.email.EmailRequest;
 import org.hswebframework.expands.request.ftp.FtpRequest;
 import org.hswebframework.expands.request.ftp.simple.SimpleFtpRequest;
@@ -16,6 +17,8 @@ import java.io.IOException;
 
 public class SimpleRequestBuilder implements RequestBuilder {
 
+    private PoolingHttpClientConnectionManager pool = new PoolingHttpClientConnectionManager();
+
     @Override
     public HttpRequestGroup http() {
         return new SimpleRequestGroup();
@@ -24,7 +27,9 @@ public class SimpleRequestBuilder implements RequestBuilder {
     @Override
     public HttpRequest http(String url) {
         if (!url.startsWith("http")) url = "http://" + url;
-        return new SimpleHttpRequest(url);
+        SimpleHttpRequest request = new SimpleHttpRequest(url);
+        request.setPool(pool);
+        return request;
     }
 
     public HttpRequest https(String url) {

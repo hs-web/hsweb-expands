@@ -14,6 +14,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hswebframework.expands.request.http.Callback;
@@ -27,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Created by zhouhao on 16-6-23.
- */
 public abstract class AbstractHttpRequest implements HttpRequest {
     private Map<String, String> params = new LinkedHashMap<>();
     private Map<String, String> headers = new LinkedHashMap<>();
@@ -37,10 +35,15 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     private String requestBody;
     private String contentType;
     private String encode = "utf-8";
-    private Callback<HttpUriRequest> before;
+    private Callback<HttpRequestBase> before;
     private Callback<HttpResponse> after;
     protected HttpClient httpClient;
 
+    private PoolingHttpClientConnectionManager pool;
+
+    public void setPool(PoolingHttpClientConnectionManager pool) {
+        this.pool = pool;
+    }
 
     public AbstractHttpRequest(String url) {
         this.url = url;
@@ -55,6 +58,9 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     protected void createHttpClient() {
         if (httpClient == null) {
             HttpClientBuilder builder = HttpClientBuilder.create();
+            if(null!=pool){
+                builder.setConnectionManager(pool);
+            }
             httpClient = builder.build();
 
         }
@@ -68,7 +74,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     }
 
     @Override
-    public HttpRequest before(Callback<HttpUriRequest> callback) {
+    public HttpRequest before(Callback<HttpRequestBase> callback) {
         this.before = callback;
         return this;
     }
@@ -134,7 +140,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         return this;
     }
 
-    protected void doBefore(HttpUriRequest request) {
+    protected void doBefore(HttpRequestBase request) {
         if (before != null) {
             before.accept(request);
         }
