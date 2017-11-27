@@ -7,6 +7,7 @@ import org.hswebframework.utils.ClassUtils;
 import org.hswebframework.utils.StringUtils;
 
 import java.beans.PropertyDescriptor;
+import java.util.Map;
 
 /**
  * Created by 浩 on 2015-12-07 0007.
@@ -14,6 +15,18 @@ import java.beans.PropertyDescriptor;
 public class BeanWrapper<T> extends AbstractWrapper<T> {
 
     private Class<T> type;
+
+    public BeanWrapper() {
+    }
+
+    public BeanWrapper(Class<T> type) {
+        this.type = type;
+    }
+
+    public BeanWrapper(Class<T> type, Map<String, String> headerMapping) {
+        this.type = type;
+        this.headerNameMapper = headerMapping;
+    }
 
     @Override
     public T newInstance() throws Exception {
@@ -26,7 +39,7 @@ public class BeanWrapper<T> extends AbstractWrapper<T> {
     @Override
     public void wrapper(T instance, String header, Object value) {
         if (header == null || "".equals(header)) return;
-        header=header.trim();
+        header = header.trim();
         header = headerMapper(header);
         try {
             PropertyDescriptor propertyDescriptor = BeanUtilsBean.getInstance()

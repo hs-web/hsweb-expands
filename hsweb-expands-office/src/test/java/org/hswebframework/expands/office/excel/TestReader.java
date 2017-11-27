@@ -43,11 +43,30 @@ public class TestReader {
             dataList.forEach(System.out::println);
         }
     }
-
     @Test
-    public void testRead() throws Exception {
+    public void testReadBeanConsumer() throws Exception {
+        //设置表头与字段映射,可通过反射获取
+        Map<String, String> mapper = new HashMap<>();
+        mapper.put("姓名", "name");
+        mapper.put("年龄", "age");
+        mapper.put("备注", "remark");
+
         try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
-            ExcelIO.read(in, (sheet,data)-> System.out.println("sheet"+sheet+" : "+data));
+            ExcelIO.read(in,mapper,User.class, (row)-> {
+                if(row.getSheet()==0){
+                    System.out.println(row.getResult());
+                }else{
+                    //其他sheet停止读取
+                    System.out.println("当前sheet"+row.getSheet()+",停止读取");
+                    row.shutdown();
+                }
+            });
+        }
+    }
+    @Test
+    public void testReadConsumer() throws Exception {
+        try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
+            ExcelIO.read(in, (row)-> System.out.println("sheet"+row.getSheet()+" : "+row.getResult()));
         }
     }
 

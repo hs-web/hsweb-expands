@@ -10,6 +10,7 @@ import org.hswebframework.expands.office.excel.support.template.TemplateExcelWri
 import org.hswebframework.expands.office.excel.support.template.expression.CommonCellHelper;
 import org.hswebframework.expands.office.excel.support.template.expression.ExpressionRunner;
 import org.hswebframework.expands.office.excel.support.template.expression.GroovyExpressionRunner;
+import org.hswebframework.expands.office.excel.wrapper.AbstractWrapper;
 import org.hswebframework.expands.office.excel.wrapper.BeanWrapper;
 import org.hswebframework.expands.office.excel.wrapper.HashMapWrapper;
 import org.hswebframework.expands.office.excel.wrapper.MultitermSheetWrapper;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Excel读写操作类
@@ -76,25 +78,67 @@ public class ExcelIO {
         return reader.readExcel(inputStream);
     }
 
-    public static void read(InputStream inputStream, Consumer<Map<String, Object>> consumer) throws Exception {
+    @SuppressWarnings("all")
+    public static void read(InputStream inputStream, Consumer<OnRow<Map<String, Object>>> consumer) throws Exception {
         CommonExcelReader<Map<String, Object>> reader = new CommonExcelReader<>();
-        reader.setWrapper(new HashMapWrapper() {
+        reader.setWrapper((ExcelReaderWrapper) new MultitermSheetWrapper(new HashMapWrapper[]{new HashMapWrapper()}) {
             @Override
-            public boolean wrapperDone(Map<String, Object> instance) {
-                consumer.accept(instance);
+            public boolean wrapperDone(Object instance) {
+                Runnable shutdown = this::shutdown;
+                consumer.accept(new OnRow<Map<String, Object>>() {
+                    @Override
+                    public int getSheet() {
+                        return sheet;
+                    }
+
+                    @Override
+                    public Map<String, Object> getResult() {
+                        return ((Map) instance);
+                    }
+
+                    @Override
+                    public void shutdown() {
+                        shutdown.run();
+                    }
+                });
                 return false;
             }
         });
         reader.readExcel(inputStream);
     }
 
+    public interface OnRow<T> {
+        int getSheet();
+
+        T getResult();
+
+        void shutdown();
+
+    }
+
     @SuppressWarnings("all")
-    public static void read(InputStream inputStream, BiConsumer<Integer, Map<String, Object>> consumer) throws Exception {
-        CommonExcelReader<Map<String, Object>> reader = new CommonExcelReader<>();
-        reader.setWrapper((ExcelReaderWrapper) new MultitermSheetWrapper(new HashMapWrapper[]{new HashMapWrapper()}) {
+    public static <T> void read(InputStream inputStream, Map<String, String> headerMapper, Class<T> tClass, Consumer<OnRow<T>> consumer) throws Exception {
+        CommonExcelReader<T> reader = new CommonExcelReader<>();
+        reader.setWrapper((ExcelReaderWrapper) new MultitermSheetWrapper(new BeanWrapper[]{new BeanWrapper<>(tClass, headerMapper)}) {
             @Override
             public boolean wrapperDone(Object instance) {
-                consumer.accept(sheet, ((Map) instance));
+                Runnable shutdown = this::shutdown;
+                consumer.accept(new OnRow<T>() {
+                    @Override
+                    public int getSheet() {
+                        return sheet;
+                    }
+
+                    @Override
+                    public T getResult() {
+                        return tClass.cast(instance);
+                    }
+
+                    @Override
+                    public void shutdown() {
+                        shutdown.run();
+                    }
+                });
                 return false;
             }
         });
