@@ -4,12 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>hsweb-expands</artifactId>
-        <groupId>org.hsweb</groupId>
-        <version>1.0.2</version>
+        <groupId>org.hswebframework</groupId>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hsweb-expands-script</artifactId>
+    <url>https://github.com/hs-web/hsweb-expands/${artifactId}</url>
+    <description>动态脚本:动态编译执行js,groovy,java等等</description>
 
     <dependencies>
 
@@ -19,8 +21,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hsweb</groupId>
-            <artifactId>hsweb-commons</artifactId>
+            <groupId>org.hswebframework</groupId>
+            <artifactId>hsweb-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>hsweb-expands-security</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- log start -->
         <dependency>
@@ -32,6 +39,7 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <optional>true</optional>
+            <scope>test</scope>
         </dependency>
 
         <!--groovy-->
