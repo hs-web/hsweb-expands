@@ -46,7 +46,7 @@ public interface ExcelReaderWrapper<T> {
      *
      * @param instance 填充结束的对象
      */
-    void wrapperDone(T instance);
+    boolean wrapperDone(T instance);
 
     default void setup(List<String> headers, int sheet) {
 

@@ -12,7 +12,7 @@ import java.util.List;
 public class MultitermSheetWrapper extends AbstractWrapper<Object> {
     private ExcelReaderWrapper[] wrappers;
 
-    private int sheet = 0;
+    protected int sheet = 0;
     private ExcelReaderWrapper nowWrapper;
     private List<List> data = new ArrayList<>();
     private List nowData = new ArrayList<>();
@@ -49,8 +49,10 @@ public class MultitermSheetWrapper extends AbstractWrapper<Object> {
     }
 
     @Override
-    public void wrapperDone(Object instance) {
+    public boolean wrapperDone(Object instance) {
         nowData.add(instance);
+
+        return true;
     }
 
     public List<List> getData() {

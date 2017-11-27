@@ -32,6 +32,7 @@ public class TestReader {
             dataList.forEach(System.out::println);
         }
     }
+
     /**
      * 测试将excel表格转为多个map
      */
@@ -42,6 +43,14 @@ public class TestReader {
             dataList.forEach(System.out::println);
         }
     }
+
+    @Test
+    public void testRead() throws Exception {
+        try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
+            ExcelIO.read(in, (sheet,data)-> System.out.println("sheet"+sheet+" : "+data));
+        }
+    }
+
     /**
      * 有合并行的excel读取示例
      */

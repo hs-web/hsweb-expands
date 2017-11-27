@@ -19,6 +19,8 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Excel读写操作类
@@ -69,9 +71,34 @@ public class ExcelIO {
      * @throws Exception 读取异常
      */
     public static <T> List<T> read(InputStream inputStream, ExcelReaderWrapper<T> wrapper) throws Exception {
-        CommonExcelReader reader = new CommonExcelReader();
+        CommonExcelReader<T> reader = new CommonExcelReader<>();
         reader.setWrapper(wrapper);
         return reader.readExcel(inputStream);
+    }
+
+    public static void read(InputStream inputStream, Consumer<Map<String, Object>> consumer) throws Exception {
+        CommonExcelReader<Map<String, Object>> reader = new CommonExcelReader<>();
+        reader.setWrapper(new HashMapWrapper() {
+            @Override
+            public boolean wrapperDone(Map<String, Object> instance) {
+                consumer.accept(instance);
+                return false;
+            }
+        });
+        reader.readExcel(inputStream);
+    }
+
+    @SuppressWarnings("all")
+    public static void read(InputStream inputStream, BiConsumer<Integer, Map<String, Object>> consumer) throws Exception {
+        CommonExcelReader<Map<String, Object>> reader = new CommonExcelReader<>();
+        reader.setWrapper((ExcelReaderWrapper) new MultitermSheetWrapper(new HashMapWrapper[]{new HashMapWrapper()}) {
+            @Override
+            public boolean wrapperDone(Object instance) {
+                consumer.accept(sheet, ((Map) instance));
+                return false;
+            }
+        });
+        reader.readExcel(inputStream);
     }
 
     /**

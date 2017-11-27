@@ -25,8 +25,9 @@ public abstract class AbstractWrapper<T> implements ExcelReaderWrapper<T> {
 
 
     @Override
-    public void wrapperDone(T instance) {
+    public boolean wrapperDone(T instance) {
 
+        return true;
     }
 
     protected String headerMapper(String old) {

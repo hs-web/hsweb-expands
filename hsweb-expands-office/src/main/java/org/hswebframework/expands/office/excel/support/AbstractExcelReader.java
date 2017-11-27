@@ -65,7 +65,9 @@ public abstract class AbstractExcelReader<T> implements ExcelReader<T> {
                     }
                     //如果是最后一列，则代表本行已经读取完毕,调用包装器进行本行对象的实例化。
                     if (content.isLast()) {
-                        dataList.add(wrapperRow(header, temp, sheet));
+                        T val = wrapperRow(header, temp, sheet);
+                        if (null != val)
+                            dataList.add(val);
                         temp.clear();
                     }
                 }
@@ -93,8 +95,8 @@ public abstract class AbstractExcelReader<T> implements ExcelReader<T> {
             //包装属性
             getWrapper().wrapper(instance, header, contents.get(i).getValue());
         }
-        getWrapper().wrapperDone(instance);
-        return instance;
+
+        return getWrapper().wrapperDone(instance) ? instance : null;
     }
 
     /**
