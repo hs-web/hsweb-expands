@@ -16,7 +16,8 @@
 `mvn install -Dmaven.test.skip=true`
 
 #### 也可以修改pom文件
-`<plugin>    
+```
+<plugin>    
     <groupId>org.apache.maven.plugin</groupId>    
     <artifactId>maven-compiler-plugin</artifactId>    
     <version>2.1</version>    
@@ -31,7 +32,8 @@
     <configuration>    
         <skip>true</skip>    
     </configuration>    
-</plugin>`
+</plugin>
+```
 
 #### 3.BUILD SUCCESS后打开单元测试用例。找到你需要的功能点，运行测试。
 #### 4.进入相关方法查看理解源码。
