@@ -82,7 +82,9 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     value = propertyUtils.getProperty(data, header.getField());
                 } catch (Exception e) {
                 }
-                if (value == null) value = "";
+                if (value == null){
+                    value = "";
+                }
                 initCell(x, index, cell, header.getField(), value);
                 if (index++ == 0) {
                     initRow(row, row.getRowNum(), header.getField());
@@ -218,8 +220,9 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     val = BeanUtils.getProperty(data, header);
                 } catch (Exception e) {
                 }
-                if (val == null)
+                if (val == null){
                     val = "";
+                }
                 //如果上一列的本行未进行合并,那么这一列也不进行合并
                 if (index != 0 && !temp.contains(StringUtils.concat("c_", index - 1, "_d", dataIndex))) {
                     lastData = "__$$";
@@ -272,19 +275,19 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
             }
             //表格
             if (customCellStyle.getBorderTop() != null) {
-                style.setBorderTop(customCellStyle.getBorderTop().getSize());
+                style.setBorderTop(BorderStyle.valueOf(customCellStyle.getBorderTop().getSize()));
                 style.setTopBorderColor(customCellStyle.getBorderTop().getColor());
             }
             if (customCellStyle.getBorderBottom() != null) {
-                style.setBorderBottom(customCellStyle.getBorderBottom().getSize());
+                style.setBorderBottom(BorderStyle.valueOf(customCellStyle.getBorderBottom().getSize()));
                 style.setBottomBorderColor(customCellStyle.getBorderBottom().getColor());
             }
             if (customCellStyle.getBorderLeft() != null) {
-                style.setBorderLeft(customCellStyle.getBorderTop().getSize());
+                style.setBorderLeft(BorderStyle.valueOf(customCellStyle.getBorderTop().getSize()));
                 style.setLeftBorderColor(customCellStyle.getBorderTop().getColor());
             }
             if (customCellStyle.getBorderRight() != null) {
-                style.setBorderRight(customCellStyle.getBorderTop().getSize());
+                style.setBorderRight(BorderStyle.valueOf(customCellStyle.getBorderTop().getSize()));
                 style.setRightBorderColor(customCellStyle.getBorderTop().getColor());
             }
             //数据格式
@@ -293,9 +296,9 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                 style.setDataFormat(dataFormat.getFormat(customCellStyle.getFormat()));
             }
             // 水平
-            style.setAlignment(customCellStyle.getAlignment());
+            style.setAlignment(HorizontalAlignment.forInt(customCellStyle.getAlignment()));
             // 垂直
-            style.setVerticalAlignment(customCellStyle.getVerticalAlignment());
+            style.setVerticalAlignment(VerticalAlignment.forInt(customCellStyle.getVerticalAlignment()));
             //放入缓存
             putStyleFromCache(customCellStyle.getCacheKey(), style);
         }

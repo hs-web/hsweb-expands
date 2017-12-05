@@ -27,7 +27,7 @@ public class TestReader {
      */
     @Test
     public void testRead2Map() throws Exception {
-        try (InputStream in = FileUtils.getResourceAsStream("User.xlsx")) {
+        try (InputStream in = FileUtils.getResourceAsStream("测试.xlsx")) {
             List<Map<String, Object>> dataList = ExcelIO.read2Map(in);
             dataList.forEach(System.out::println);
         }

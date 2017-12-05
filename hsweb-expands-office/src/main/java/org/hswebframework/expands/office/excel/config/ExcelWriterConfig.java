@@ -1,7 +1,8 @@
 package org.hswebframework.expands.office.excel.config;
 
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -130,17 +131,18 @@ public class ExcelWriterConfig {
     }
 
     public void addMerge(Merge merge) {
-        if (!merges.contains(merge)) ;
-        merges.add(merge);
+        if (!merges.contains(merge)) {
+            merges.add(merge);
+        }
     }
 
 
     private CustomCellStyle cellStyle = new CustomCellStyle();
 
     public ExcelWriterConfig() {
-        cellStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER);
-        cellStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER);
-        CustomCellStyle.Border border = new CustomCellStyle.Border((short) 1, HSSFColor.BLACK.index);
+        cellStyle.setAlignment(HorizontalAlignment.CENTER.getCode());
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER.getCode());
+        CustomCellStyle.Border border = new CustomCellStyle.Border((short) 1, HSSFColor.HSSFColorPredefined.BLACK.getIndex());
         cellStyle.setBorderLeft(border);
         cellStyle.setBorderRight(border);
         cellStyle.setBorderBottom(border);
