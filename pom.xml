@@ -7,7 +7,7 @@
     <groupId>org.hswebframework</groupId>
     <artifactId>hsweb-expands</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1</version>
+    <version>3.0.2-SNAPSHOTS</version>
     <modules>
         <module>hsweb-expands-script</module>
         <module>hsweb-expands-office</module>
