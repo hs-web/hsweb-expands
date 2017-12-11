@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -36,10 +37,10 @@ public class SimpleRequestBuilderTest {
     @Test
     public void testHttpDownload() throws Exception {
         long t = System.currentTimeMillis();
-       builder.http("http://192.168.3.2:8898/upload/20171126/382982608382898.mp4")
-               .download()
-               .write(new File("target/1.mp4"));
-        System.out.println(System.currentTimeMillis()-t);
+        String json = builder.http("http://localhost:8088/file/upload-static")
+                .upload("file", new FileInputStream("/home/zhouhao/桌面/logo.jpg"), "test.jpg").asString();
+        System.out.println(json);
+        System.out.println(System.currentTimeMillis() - t);
     }
 
     @Test

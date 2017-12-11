@@ -31,15 +31,15 @@ import java.util.stream.Collectors;
  * Created by zhouhao on 16-6-23.
  */
 public abstract class AbstractHttpRequest implements HttpRequest {
-    private Map<String, String> params = new LinkedHashMap<>();
+    private Map<String, String> params  = new LinkedHashMap<>();
     private Map<String, String> headers = new LinkedHashMap<>();
     private String url;
     private String requestBody;
     private String contentType;
     private String encode = "utf-8";
-    private Callback<HttpUriRequest> before;
-    private Callback<HttpResponse> after;
-    protected HttpClient httpClient;
+    private   Callback<HttpUriRequest> before;
+    private   Callback<HttpResponse>   after;
+    protected HttpClient               httpClient;
 
 
     public AbstractHttpRequest(String url) {
@@ -164,7 +164,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
             public HttpDownloader post() throws IOException {
                 HttpPost post = new HttpPost(url);
                 if (requestBody != null)
-                    post.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
+                    post.setEntity(new StringEntity(requestBody, ContentType.create(contentType, encode)));
                 else {
                     post.setEntity(createUrlEncodedFormEntity());
                 }
@@ -206,10 +206,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
                 if (response.getStatusLine().getStatusCode() == 200) {
 
                     InputStream inputStream = entity.getContent();
-                   byte[] buffer=new byte[4096];
-                   int read;
-                    while ((read= inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer,0,read);
+                    byte[] buffer = new byte[4096];
+                    int read;
+                    while ((read = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, read);
                     }
                     outputStream.flush();
                     EntityUtils.consumeQuietly(entity);
@@ -227,16 +227,20 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Response upload(String paramName, InputStream inputStream) throws IOException {
+    public Response upload(String paramName, InputStream inputStream, String fileName) throws IOException {
         HttpPost post = new HttpPost(url);
-
+        ContentType contentType = ContentType.DEFAULT_BINARY;
+        if (contentType != null) {
+            contentType = ContentType.create(this.contentType);
+        }
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
-                .addPart(paramName, new InputStreamBody(inputStream, paramName));
+                .addPart(paramName, new InputStreamBody(inputStream, contentType, fileName));
         params.forEach(builder::addTextBody);
         post.setEntity(builder.build());
         HttpResponse response = execute(post);
         return getResultValue(response);
     }
+
 
     @Override
     public Response upload(String paramName, File file) throws IOException {
@@ -275,7 +279,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response post() throws IOException {
         HttpPost post = new HttpPost(url);
         if (requestBody != null)
-            post.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
+            post.setEntity(new StringEntity(requestBody, ContentType.create(contentType, encode)));
         else {
             post.setEntity(createUrlEncodedFormEntity());
         }
@@ -287,7 +291,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response put() throws IOException {
         HttpPut put = new HttpPut(url);
         if (requestBody != null)
-            put.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
+            put.setEntity(new StringEntity(requestBody, ContentType.create(contentType, encode)));
         else {
 
             put.setEntity(createUrlEncodedFormEntity());
