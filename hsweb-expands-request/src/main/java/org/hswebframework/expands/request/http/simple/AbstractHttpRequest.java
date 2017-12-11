@@ -230,8 +230,12 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response upload(String paramName, InputStream inputStream, String fileName) throws IOException {
         HttpPost post = new HttpPost(url);
         ContentType contentType = ContentType.DEFAULT_BINARY;
-        if (contentType != null) {
-            contentType = ContentType.create(this.contentType);
+        if (this.contentType != null) {
+            try {
+                contentType = ContentType.create(this.contentType);
+            } catch (Exception e) {
+
+            }
         }
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                 .addPart(paramName, new InputStreamBody(inputStream, contentType, fileName));
