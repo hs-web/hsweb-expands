@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.poi.ss.usermodel.CellType.*;
 import static org.apache.poi.ss.usermodel.DateUtil.isADateFormat;
 
 /**
@@ -63,7 +64,7 @@ public class POIExcelApi implements ExcelApi {
                     cellContent.setSheet(x);
                     cellContent.setRow(i);
                     cellContent.setColumn(j);
-                    Object value = cell == null ? null : cell2Object(cell);
+                    Object value = cell2Object(cell);
                     cellContent.setValue(value);
                     //调用回掉
                     callBack.onCell(cellContent);
@@ -84,10 +85,10 @@ public class POIExcelApi implements ExcelApi {
     protected Object cell2Object(Cell cell) {
         if (cell == null)
             return "";
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_BOOLEAN:
+        switch (cell.getCellTypeEnum()) {
+            case BOOLEAN:
                 return cell.getBooleanCellValue();
-            case Cell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 if (isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 }
@@ -95,15 +96,15 @@ public class POIExcelApi implements ExcelApi {
                 if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00"))
                     return value.intValue();
                 return value;
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 return cell.getRichStringCellValue().getString();
-            case Cell.CELL_TYPE_FORMULA:
+            case FORMULA:
                 FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
                 CellValue cellValue = evaluator.evaluate(cell);
-                switch (cellValue.getCellType()) {
-                    case Cell.CELL_TYPE_BOOLEAN:
+                switch (cellValue.getCellTypeEnum()) {
+                    case BOOLEAN:
                         return cell.getBooleanCellValue();
-                    case Cell.CELL_TYPE_NUMERIC:
+                    case NUMERIC:
                         if (isCellDateFormatted(cell)) {
                             return cell.getDateCellValue();
                         }
@@ -111,11 +112,13 @@ public class POIExcelApi implements ExcelApi {
                         if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00"))
                             return value.intValue();
                         return value;
-                    case Cell.CELL_TYPE_BLANK:
+                    case BLANK:
                         return "";
                     default:
                         return cellValue.getStringValue();
                 }
+            case BLANK:
+                return "";
             default:
                 return cell.getStringCellValue();
         }

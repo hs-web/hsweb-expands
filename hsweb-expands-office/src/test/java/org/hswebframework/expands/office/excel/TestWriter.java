@@ -237,9 +237,9 @@ public class TestWriter {
                     //不为表头并且为姓名列
                     if (row > 0 && "姓名".equals(header)) {
                         //设置红色
-                        style.setFontColor(HSSFColor.RED.index);
+                        style.setFontColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
                     } else {
-                        style.setFontColor(HSSFColor.BLACK.index);
+                        style.setFontColor(HSSFColor.HSSFColorPredefined.BLACK.getIndex());
                     }
                     return style;
                 }

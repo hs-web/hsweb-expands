@@ -14,7 +14,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hswebframework.expands.request.http.Callback;
@@ -29,15 +28,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AbstractHttpRequest implements HttpRequest {
-    private Map<String, String> params = new LinkedHashMap<>();
+    private Map<String, String> params  = new LinkedHashMap<>();
     private Map<String, String> headers = new LinkedHashMap<>();
     private String url;
     private String requestBody;
     private String contentType;
     private String encode = "utf-8";
-    private Callback<HttpRequestBase> before;
-    private Callback<HttpResponse> after;
-    protected HttpClient httpClient;
+    private   Callback<HttpUriRequest> before;
+    private   Callback<HttpResponse>   after;
+    protected HttpClient               httpClient;
 
     private PoolingHttpClientConnectionManager pool;
 
@@ -58,9 +57,6 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     protected void createHttpClient() {
         if (httpClient == null) {
             HttpClientBuilder builder = HttpClientBuilder.create();
-            if(null!=pool){
-                builder.setConnectionManager(pool);
-            }
             httpClient = builder.build();
 
         }
@@ -74,7 +70,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     }
 
     @Override
-    public HttpRequest before(Callback<HttpRequestBase> callback) {
+    public HttpRequest before(Callback<HttpUriRequest> callback) {
         this.before = callback;
         return this;
     }
@@ -140,7 +136,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
         return this;
     }
 
-    protected void doBefore(HttpRequestBase request) {
+    protected void doBefore(HttpUriRequest request) {
         if (before != null) {
             before.accept(request);
         }
@@ -212,10 +208,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
                 if (response.getStatusLine().getStatusCode() == 200) {
 
                     InputStream inputStream = entity.getContent();
-                   byte[] buffer=new byte[4096];
-                   int read;
-                    while ((read= inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer,0,read);
+                    byte[] buffer = new byte[4096];
+                    int read;
+                    while ((read = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, read);
                     }
                     outputStream.flush();
                     EntityUtils.consumeQuietly(entity);
@@ -233,16 +229,24 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Response upload(String paramName, InputStream inputStream) throws IOException {
+    public Response upload(String paramName, InputStream inputStream, String fileName) throws IOException {
         HttpPost post = new HttpPost(url);
+        ContentType contentType = ContentType.DEFAULT_BINARY;
+        if (this.contentType != null) {
+            try {
+                contentType = ContentType.create(this.contentType);
+            } catch (Exception e) {
 
+            }
+        }
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
-                .addPart(paramName, new InputStreamBody(inputStream, paramName));
+                .addPart(paramName, new InputStreamBody(inputStream, contentType, fileName));
         params.forEach(builder::addTextBody);
         post.setEntity(builder.build());
         HttpResponse response = execute(post);
         return getResultValue(response);
     }
+
 
     @Override
     public Response upload(String paramName, File file) throws IOException {
@@ -293,7 +297,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response put() throws IOException {
         HttpPut put = new HttpPut(url);
         if (requestBody != null)
-            put.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
+            put.setEntity(new StringEntity(requestBody, ContentType.create(contentType, encode)));
         else {
 
             put.setEntity(createUrlEncodedFormEntity());

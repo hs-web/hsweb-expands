@@ -42,7 +42,11 @@ public interface HttpRequest extends Closeable {
 
     Response upload(String paramName, File file) throws IOException;
 
-    Response upload(String paramName,InputStream inputStream) throws IOException;
+    default Response upload(String paramName, InputStream inputStream) throws IOException {
+        return upload(paramName, inputStream, paramName);
+    }
+
+    Response upload(String paramName, InputStream inputStream, String fileName) throws IOException;
 
     Response upload(File file) throws IOException;
 
