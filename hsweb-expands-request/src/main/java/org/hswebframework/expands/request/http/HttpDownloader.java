@@ -18,4 +18,5 @@ public interface HttpDownloader<R> {
 
     R write(OutputStream outputStream) throws IOException;
 
+    Response response()throws IOException;
 }

@@ -51,4 +51,9 @@ public class SimpleResponse implements Response {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public long contentLength() {
+        return response.getEntity().getContentLength();
+    }
 }

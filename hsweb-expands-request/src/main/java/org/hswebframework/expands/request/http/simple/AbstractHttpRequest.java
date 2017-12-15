@@ -14,6 +14,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hswebframework.expands.request.http.Callback;
@@ -152,6 +153,14 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public HttpDownloader download() throws IOException {
         return new HttpDownloader() {
             private HttpResponse response;
+
+            @Override
+            public Response response() throws IOException {
+                if(response==null){
+                    get();
+                }
+                return getResultValue(response);
+            }
 
             @Override
             public HttpDownloader get() throws IOException {

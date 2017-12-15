@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface HttpRequest extends Closeable {
 
-    HttpRequest before(Callback<HttpRequestBase> callback);
+    HttpRequest before(Callback<HttpUriRequest> callback);
 
     HttpRequest after(Callback<HttpResponse> callback);
 
