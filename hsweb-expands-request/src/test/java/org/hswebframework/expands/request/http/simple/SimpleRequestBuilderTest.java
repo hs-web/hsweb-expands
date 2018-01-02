@@ -59,7 +59,7 @@ public class SimpleRequestBuilderTest {
 
     @Test
     public void testHttps() throws IOException {
-        HttpRequest request = builder.https("https://www.aliyun.com/");
+        HttpRequest request = builder.https("https://www.baidu.com/");
         Response response = request.get();
         System.out.println(response.asString());
     }

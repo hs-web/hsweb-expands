@@ -17,4 +17,5 @@ public interface Response {
 
     <T> T getNativeResponse();
 
+    long contentLength();
 }

@@ -1,6 +1,7 @@
 package org.hswebframework.expands.request.http;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.Closeable;

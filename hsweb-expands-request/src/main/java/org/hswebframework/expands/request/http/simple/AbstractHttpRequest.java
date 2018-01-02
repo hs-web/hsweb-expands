@@ -14,6 +14,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.hswebframework.expands.request.http.Callback;
@@ -27,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Created by zhouhao on 16-6-23.
- */
 public abstract class AbstractHttpRequest implements HttpRequest {
     private Map<String, String> params  = new LinkedHashMap<>();
     private Map<String, String> headers = new LinkedHashMap<>();
@@ -41,6 +39,11 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     private   Callback<HttpResponse>   after;
     protected HttpClient               httpClient;
 
+    private PoolingHttpClientConnectionManager pool;
+
+    public void setPool(PoolingHttpClientConnectionManager pool) {
+        this.pool = pool;
+    }
 
     public AbstractHttpRequest(String url) {
         this.url = url;
@@ -152,6 +155,14 @@ public abstract class AbstractHttpRequest implements HttpRequest {
             private HttpResponse response;
 
             @Override
+            public Response response() throws IOException {
+                if(response==null){
+                    get();
+                }
+                return getResultValue(response);
+            }
+
+            @Override
             public HttpDownloader get() throws IOException {
                 String param = EntityUtils.toString(createUrlEncodedFormEntity());
                 String tmpUrl = url + (url.contains("?") ? "&" : "?") + param;
@@ -164,7 +175,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
             public HttpDownloader post() throws IOException {
                 HttpPost post = new HttpPost(url);
                 if (requestBody != null)
-                    post.setEntity(new StringEntity(requestBody, ContentType.create(contentType, encode)));
+                    post.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
                 else {
                     post.setEntity(createUrlEncodedFormEntity());
                 }
@@ -283,7 +294,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
     public Response post() throws IOException {
         HttpPost post = new HttpPost(url);
         if (requestBody != null)
-            post.setEntity(new StringEntity(requestBody, ContentType.create(contentType, encode)));
+            post.setEntity(new StringEntity(requestBody, ContentType.create(contentType,encode)));
         else {
             post.setEntity(createUrlEncodedFormEntity());
         }
