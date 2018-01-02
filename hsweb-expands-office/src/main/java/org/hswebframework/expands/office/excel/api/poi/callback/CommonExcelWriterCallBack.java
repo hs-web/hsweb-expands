@@ -82,7 +82,7 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     value = propertyUtils.getProperty(data, header.getField());
                 } catch (Exception e) {
                 }
-                if (value == null){
+                if (value == null) {
                     value = "";
                 }
                 initCell(x, index, cell, header.getField(), value);
@@ -104,40 +104,41 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
     protected void initHeader() {
         processor.nextRow();//创建1行
         List<org.hswebframework.expands.office.excel.config.Header> headers = config.getHeaders();
-        if (config.getStartWith() > 0) {
-            for (int x = 0; x < config.getStartWith(); x++) {
-                for (int y = 0, len = headers.size(); y < len; y++) {
-                    org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
-                    CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
-                    if (null != style) {
-                        sheet.setColumnWidth(y, style.getWidth());
-                    }
-                    Cell cell = processor.nextCell();
-                    initCell(x, y, cell, header.getField(), header.getTitle());
-                    CustomCellStyle titleStyle = header.getStyle();
-                    if (null != titleStyle) {
-                        CellStyle cacheStyle = getStyle(titleStyle);
-                        cell.setCellStyle(cacheStyle);
-                    }
-                }
-            }
-        } else {
+        int x = config.getStartWith();
+       // if (config.getStartWith() > 0) {
+            //for (int x = 0; x < config.getStartWith(); x++) {
             for (int y = 0, len = headers.size(); y < len; y++) {
                 org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
-                Cell cell = processor.nextCell();
                 CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
                 if (null != style) {
                     sheet.setColumnWidth(y, style.getWidth());
                 }
-                initCell(0, y, cell, header.getField(), header.getTitle());
+                Cell cell = processor.nextCell();
+                initCell(x, y, cell, header.getField(), header.getTitle());
                 CustomCellStyle titleStyle = header.getStyle();
                 if (null != titleStyle) {
                     CellStyle cacheStyle = getStyle(titleStyle);
                     cell.setCellStyle(cacheStyle);
                 }
-
             }
-        }
+            // }
+//        } else {
+//            for (int y = 0, len = headers.size(); y < len; y++) {
+//                org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
+//                Cell cell = processor.nextCell();
+//                CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
+//                if (null != style) {
+//                    sheet.setColumnWidth(y, style.getWidth());
+//                }
+//                initCell(0, y, cell, header.getField(), header.getTitle());
+//                CustomCellStyle titleStyle = header.getStyle();
+//                if (null != titleStyle) {
+//                    CellStyle cacheStyle = getStyle(titleStyle);
+//                    cell.setCellStyle(cacheStyle);
+//                }
+//
+//            }
+//        }
 
     }
 
@@ -220,7 +221,7 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
                     val = BeanUtils.getProperty(data, header);
                 } catch (Exception e) {
                 }
-                if (val == null){
+                if (val == null) {
                     val = "";
                 }
                 //如果上一列的本行未进行合并,那么这一列也不进行合并

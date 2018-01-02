@@ -217,7 +217,88 @@ public class TestWriter {
         }
     }
 
+    /**
+     * 自定义导出样式，有待优化
+     */
+    @Test
+    public void testWriteCustomStyle2() throws Exception {
+        try (OutputStream outputStream = new FileOutputStream("target/test_2.xlsx")) {
+            ExcelWriterConfig config = new ExcelWriterConfig() {
+                @Override
+                public Object startBefore(int row, int column) {
+                    System.out.println("row:    " + row);
+                    System.out.println("column:   " + column);
+                    String str = "";
+                    if (row == 1) {
+                        if (column == 0) {
+                            str = "time ";
+                        } else if (column == 4) {
+                            str = "creator";
+                        }
+                    } else {
+                        str = "汇总表";
+                    }
+                    //被跳过的行(代码[2、]处设置)填充此值
+                    return str;
+                }
 
+                @Override
+                public CustomCellStyle getCellStyle(int row, int column, String header, Object value) {
+                    CustomCellStyle style = super.getCellStyle(row, column, header, value);
+                    //不为表头并且为姓名列
+                    if (row > 0 && "姓名".equals(header)) {
+                        //设置红色
+                        style.setFontColor(HSSFColor.RED.index);
+                    } else {
+                        style.setFontColor(HSSFColor.BLACK.index);
+                    }
+                    return style;
+                }
+
+                @Override
+                public CustomRowStyle getRowStyle(int row, String header) {
+                    if (row == -1) {
+                        //表头高度
+                        return new CustomRowStyle(20);
+                    }
+                    if (row == 0) {
+                        //第一行的高度
+                        return new CustomRowStyle(50);
+                    }
+                    return null;
+                }
+
+                @Override
+                public CustomColumnStyle getColumnStyle(int column, String header) {
+                    //设置姓名列的宽度
+                    if ("姓名".equals(header)) {
+                        return new CustomColumnStyle(5000);
+                    }
+                    return null;
+                }
+            };
+            //设置表头和数据
+            config.setHeaders(headers);
+            config.setDatas(datas);
+            //1、自动合并年级和班级相同的列
+            config.mergeColumn("grade", "classes", "sex");
+            //2、从第2行开始写出
+            config.setStartWith(2);
+            //3、合并第一行的第一列到第六列,因为设置了startWith起始行号为1,所以第一列为-1
+            config.addMerge(-2, 0, 5, -2);
+            config.addMerge(-1, 0, 3, -1);
+
+            //第二个sheet
+            ExcelWriterConfig config2 = new ExcelWriterConfig();
+            config2.setSheetName("第二个");
+            //设置表头和数据
+            config2.setHeaders(headers);
+            config2.setDatas(datas);
+            //写出
+            ExcelIO.write(outputStream, config, config2);
+            outputStream.flush();
+        }
+    }
     /**
      * 自定义导出样式，有待优化
      */
