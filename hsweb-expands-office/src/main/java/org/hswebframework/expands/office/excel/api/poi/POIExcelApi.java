@@ -92,9 +92,11 @@ public class POIExcelApi implements ExcelApi {
                 if (isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 }
-                BigDecimal value = new BigDecimal(cell.getNumericCellValue());
-                if (String.valueOf(value).endsWith(".0") || String.valueOf(value).endsWith(".00"))
+                String stringValue = String.valueOf(cell.getNumericCellValue());
+                BigDecimal value = new BigDecimal(stringValue);
+                if (stringValue.endsWith(".0") || stringValue.endsWith(".00")){
                     return value.intValue();
+                }
                 return value;
             case STRING:
                 return cell.getRichStringCellValue().getString();
