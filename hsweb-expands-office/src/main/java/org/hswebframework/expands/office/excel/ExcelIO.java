@@ -17,9 +17,7 @@ import org.hswebframework.expands.office.excel.wrapper.MultitermSheetWrapper;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -79,9 +77,11 @@ public class ExcelIO {
     }
 
     @SuppressWarnings("all")
-    public static void read(InputStream inputStream, Consumer<OnRow<Map<String, Object>>> consumer) throws Exception {
+    public static void read(InputStream inputStream, Map<String, String> headerMapping, Consumer<OnRow<Map<String, Object>>> consumer) throws Exception {
         CommonExcelReader<Map<String, Object>> reader = new CommonExcelReader<>();
-        reader.setWrapper((ExcelReaderWrapper) new MultitermSheetWrapper(new HashMapWrapper[]{new HashMapWrapper()}) {
+        HashMapWrapper wrapper = new HashMapWrapper();
+        wrapper.setHeaderNameMapper(headerMapping);
+        reader.setWrapper((ExcelReaderWrapper) new MultitermSheetWrapper(new HashMapWrapper[]{wrapper}) {
             @Override
             public boolean wrapperDone(Object instance) {
                 Runnable shutdown = this::shutdown;
@@ -105,6 +105,11 @@ public class ExcelIO {
             }
         });
         reader.readExcel(inputStream);
+    }
+
+    @SuppressWarnings("all")
+    public static void read(InputStream inputStream, Consumer<OnRow<Map<String, Object>>> consumer) throws Exception {
+        read(inputStream, Collections.emptyMap(), consumer);
     }
 
     public interface OnRow<T> {
