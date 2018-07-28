@@ -188,4 +188,13 @@ public class Shell {
         }
     }
 
+    public static void main(String[] args) throws IOException {
+//        Shell.build("./ossutil64 cp cctv_3.mp4 oss://crzvideo/videos/")
+//                .onProcess((line, helper) -> System.out.println(line))
+//                .exec();
+        Shell.build("./ossutil64 sign oss://crzvideo/videos/cctv_3.mp4 --timeout 36000")
+                .onProcess((line, helper) -> System.out.println(line))
+                .exec();
+    }
+
 }
