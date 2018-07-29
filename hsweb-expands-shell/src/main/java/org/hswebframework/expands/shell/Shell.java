@@ -189,7 +189,7 @@ public class Shell {
     }
 
     public static void main(String[] args) throws IOException {
-        //测试一下02
+        //测试一下03
 //        Shell.build("./ossutil64 cp cctv_3.mp4 oss://crzvideo/videos/")
 //                .onProcess((line, helper) -> System.out.println(line))
 //                .exec();
