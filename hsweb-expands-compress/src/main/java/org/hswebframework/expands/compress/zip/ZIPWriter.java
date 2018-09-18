@@ -10,6 +10,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.Deflater;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created by zhouhao on 16-7-5.
@@ -17,7 +19,14 @@ import java.util.stream.Collectors;
 public class ZIPWriter {
 
     private List<ZipFileSteam> zipFileDatas = new ArrayList<>();
-    private List<ZipFileFile> zipFileFiles = new ArrayList<>();
+    private List<ZipFileFile>  zipFileFiles = new ArrayList<>();
+
+    private int compressLevel = -1;
+
+    public ZIPWriter level(int compressLevel) {
+        this.compressLevel = compressLevel;
+        return this;
+    }
 
     public ZIPWriter addTextFile(String fileName, String text) {
         zipFileDatas.add(new ZipFileSteam(fileName, new ByteArrayInputStream(text.getBytes())));
@@ -52,15 +61,40 @@ public class ZIPWriter {
     }
 
     public void write(OutputStream outputStream) {
-        List<ZipEntrySource> zipEntrySources = zipFileDatas.size() == 0 ? new ArrayList<>() : zipFileDatas.stream().map(zipFileData -> zipFileData.create()).collect(Collectors.toList());
-        if (zipFileFiles.size() > 0) {
-            zipEntrySources.addAll(zipFileFiles.stream().map(zipFileData -> zipFileData.create()).collect(Collectors.toList()));
+
+        try (ZipOutputStream out = new ZipOutputStream(outputStream)) {
+            out.setLevel(compressLevel);
+            List<ZipEntrySource> zipEntrySources = zipFileDatas.isEmpty() ? new ArrayList<>() :
+                    zipFileDatas.stream()
+                            .map(ZipFileSteam::create)
+                            .collect(Collectors.toList());
+
+            for (ZipEntrySource zipEntrySource : zipEntrySources) {
+                addEntry(zipEntrySource, out);
+            }
+            out.flush();
+            out.finish();
+        } catch (IOException e) {
+            throw new UnsupportedOperationException(e);
         }
-        ZipUtil.pack(zipEntrySources.toArray(new ZipEntrySource[zipEntrySources.size()]), outputStream);
     }
 
+    private void addEntry(ZipEntrySource entry, ZipOutputStream out) throws IOException {
+        out.putNextEntry(entry.getEntry());
+        InputStream in = entry.getInputStream();
+        if (in != null) {
+            try {
+                IOUtils.copy(in, out);
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+        }
+        out.closeEntry();
+    }
+
+
     class ZipFileSteam {
-        private String name;
+        private String      name;
         private InputStream inputStream;
 
         public ZipFileSteam(String name, InputStream inputStream) {
@@ -81,7 +115,7 @@ public class ZIPWriter {
 
     class ZipFileFile {
         private String name;
-        private File file;
+        private File   file;
 
         public ZipFileFile(String name, File file) {
             this.name = name;

@@ -1,6 +1,7 @@
 package org.hswebframework.expands.compress;
 
 import org.hswebframework.expands.compress.zip.ZIPReader;
+import org.hswebframework.utils.RandomUtil;
 import org.hswebframework.utils.file.FileUtils;
 import org.junit.Assert;
 
@@ -25,9 +26,14 @@ public class CompressTest {
 
     @org.junit.Test
     public void testZip() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 100000; i++) {
+            builder.append(RandomUtil.randomChar(1000));
+        }
         Compress.zip()
                 .addTextFile("测试.txt", "test")
-                .addTextFile("/test/test2.txt", "test2")
+                .addTextFile("/test/test2.txt", builder.toString())
+                .level(9)
                 .write(new FileOutputStream("target/test.zip"));
     }
 }
