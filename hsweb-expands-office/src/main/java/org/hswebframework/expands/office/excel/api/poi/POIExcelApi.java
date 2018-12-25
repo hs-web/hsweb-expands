@@ -1,6 +1,7 @@
 package org.hswebframework.expands.office.excel.api.poi;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hswebframework.expands.office.excel.ExcelApi;
 import org.hswebframework.expands.office.excel.api.poi.callback.POIExcelWriterProcessor;
@@ -147,7 +148,7 @@ public class POIExcelApi implements ExcelApi {
     public void write(OutputStream outputStream, ExcelWriterCallBack callBack, ExcelWriterCallBack... moreSheet) throws Exception {
         logger.info("create workbook");
         //支持2007写出
-        Workbook workbook = new XSSFWorkbook();
+        Workbook workbook = new SXSSFWorkbook(2048);
         //合并所有需要写出的sheet
         List<ExcelWriterCallBack> allSheet = new ArrayList<>(Arrays.asList(moreSheet));
         allSheet.add(0, callBack);
