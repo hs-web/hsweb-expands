@@ -1,12 +1,14 @@
 package org.hswebframework.expands.request.http.simple;
 
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.hswebframework.expands.request.http.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 /**
  * Created by zhouhao on 16-6-28.
@@ -50,6 +52,14 @@ public class SimpleResponse implements Response {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getHeader(String header) {
+        return Optional
+                .ofNullable(response.getFirstHeader(header))
+                .map(Header::getValue)
+                .orElse(null);
     }
 
     @Override

@@ -18,4 +18,6 @@ public interface Response {
     <T> T getNativeResponse();
 
     long contentLength();
+
+    String getHeader(String header);
 }
