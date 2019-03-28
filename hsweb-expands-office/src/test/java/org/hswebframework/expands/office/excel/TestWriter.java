@@ -26,7 +26,7 @@ public class TestWriter {
     @Before
     public void initData() {
         CustomCellStyle cellStyle = new CustomCellStyle();
-        cellStyle.setFontColor(HSSFColor.BLUE.index);
+        cellStyle.setFontColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
         //创建模拟数据
         headers.add(new Header("年级", "grade", cellStyle));
         headers.add(new Header("班级", "classes"));
@@ -42,7 +42,15 @@ public class TestWriter {
                 {
                     put("grade", "一年级");
                     put("classes", "2班");
-                    put("sex", "男");
+                    put("sex", new HashMap<String, Object>() {{
+                        put("value", "男");
+                        put("options", Arrays.asList("男", "女"));
+                        put("style", new HashMap<String,Object>(){
+                            {
+                                put("fontColor", HSSFColor.HSSFColorPredefined.RED.getIndex());
+                            }
+                        });
+                    }});
                     put("name", "张三" + t);
                     put("age", t);
                     put("remark", "测试2");
@@ -299,6 +307,7 @@ public class TestWriter {
             outputStream.flush();
         }
     }
+
     /**
      * 自定义导出样式，有待优化
      */

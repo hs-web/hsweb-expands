@@ -1,5 +1,7 @@
 package org.hswebframework.expands.office.excel.config;
 
+import org.apache.poi.hssf.util.HSSFColor;
+
 /**
  * 自定义单元格样式
  * Created by 浩 on 2015-12-07 0007.
@@ -13,6 +15,7 @@ public class CustomCellStyle {
 
     /**
      * 字体颜色
+     * @see HSSFColor.HSSFColorPredefined
      */
     private short fontColor;
 

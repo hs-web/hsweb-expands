@@ -3,8 +3,16 @@ package org.hswebframework.expands.office.excel.api.poi.callback;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.poi.hssf.usermodel.HSSFDataValidationHelper;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.hswebframework.expands.office.excel.config.*;
 import org.hswebframework.utils.StringUtils;
 import org.slf4j.Logger;
@@ -14,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.sun.corba.se.impl.util.RepositoryId.cache;
+
 /**
  * Created by 浩 on 2015-12-16 0016.
  */
@@ -21,7 +31,7 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ExcelWriterConfig config;
+    private       ExcelWriterConfig config;
     private final PropertyUtilsBean propertyUtils = BeanUtilsBean.getInstance().getPropertyUtils();
 
     public CommonExcelWriterCallBack(ExcelWriterConfig config) {
@@ -105,51 +115,69 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
         processor.nextRow();//创建1行
         List<org.hswebframework.expands.office.excel.config.Header> headers = config.getHeaders();
         int x = config.getStartWith();
-       // if (config.getStartWith() > 0) {
-            //for (int x = 0; x < config.getStartWith(); x++) {
-            for (int y = 0, len = headers.size(); y < len; y++) {
-                org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
-                CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
-                if (null != style) {
-                    sheet.setColumnWidth(y, style.getWidth());
-                }
-                Cell cell = processor.nextCell();
-                initCell(x, y, cell, header.getField(), header.getTitle());
-                CustomCellStyle titleStyle = header.getStyle();
-                if (null != titleStyle) {
-                    CellStyle cacheStyle = getStyle(titleStyle);
-                    cell.setCellStyle(cacheStyle);
-                }
+        // if (config.getStartWith() > 0) {
+        //for (int x = 0; x < config.getStartWith(); x++) {
+        for (int y = 0, len = headers.size(); y < len; y++) {
+            org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
+            CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
+            if (null != style) {
+                sheet.setColumnWidth(y, style.getWidth());
             }
-            // }
-//        } else {
-//            for (int y = 0, len = headers.size(); y < len; y++) {
-//                org.hswebframework.expands.office.excel.config.Header header = headers.get(y);
-//                Cell cell = processor.nextCell();
-//                CustomColumnStyle style = config.getColumnStyle(y, header.getTitle());
-//                if (null != style) {
-//                    sheet.setColumnWidth(y, style.getWidth());
-//                }
-//                initCell(0, y, cell, header.getField(), header.getTitle());
-//                CustomCellStyle titleStyle = header.getStyle();
-//                if (null != titleStyle) {
-//                    CellStyle cacheStyle = getStyle(titleStyle);
-//                    cell.setCellStyle(cacheStyle);
-//                }
-//
-//            }
-//        }
+            Cell cell = processor.nextCell();
+            initCell(x, y, cell, header.getField(), header.getTitle());
+            CustomCellStyle titleStyle = header.getStyle();
+            if (null != titleStyle) {
+                CellStyle cacheStyle = getStyle(titleStyle);
+                cell.setCellStyle(cacheStyle);
+            }
+        }
 
     }
 
     protected void initCell(Cell cell, Object value) {
+        if (value == null) {
+            cell.setCellValue("");
+            return;
+        }
         cell.setCellValue(String.valueOf(value));
     }
 
+    private Map<Integer, Row> cache = new HashMap<>();
+
+    private Sheet hide;
+
     protected void initCell(int r, int c, Cell cell, String header, Object value) {
-        CustomCellStyle style;
+        AdvancedValue advancedValue = AdvancedValue.from(value);
+        value = advancedValue.getValue();
+        CustomCellStyle style = advancedValue.getStyle();
+        if (CollectionUtils.isNotEmpty(advancedValue.getOptions())) {
+            List<String> optionsList = advancedValue.getOptions();
+            DataValidationHelper helper = sheet.getDataValidationHelper();
+            if (helper == null) {
+                throw new UnsupportedOperationException(sheet.getClass().getName());
+            }
+            if (hide == null) {
+                hide = sheet.getWorkbook().createSheet("hide");
+                sheet.getWorkbook().setSheetHidden(sheet.getWorkbook().getSheetIndex(hide), true);
+            }
+            Row row = cache.computeIfAbsent(optionsList.hashCode(), k -> hide.createRow(cache.size()));
+            for (int i = 0; i < optionsList.size(); i++) {
+                Cell optionCell = row.createCell(i);
+                initCell(optionCell, optionsList.get(i));
+            }
+            Name name = hide.getWorkbook().getName(header);
+            if (name == null) {
+                name = hide.getWorkbook().createName();
+                name.setRefersToFormula("hide!$A$" + (row.getRowNum() + 1) + ":$" + CellReference.convertNumToColString(optionsList.size()) + "$" + (row.getRowNum() + 1));
+            }
+            name.setNameName(header);
+            DataValidationConstraint dvConstraint = helper.createFormulaListConstraint("hide!" + name.getNameName());
+            CellRangeAddressList cellRangeAddressList = new CellRangeAddressList(cell.getRowIndex(), cell.getRowIndex(), c, c);
+            DataValidation dataValidation = helper.createValidation(dvConstraint, cellRangeAddressList);
+            sheet.addValidationData(dataValidation);
+        }
         //如果通过回掉未获取到自定义样式,则使用默认的样式进行处理
-        if ((style = config.getCellStyle(r, c, header, value)) == null) {
+        if (style == null && (style = config.getCellStyle(r, c, header, value)) == null) {
             initCell(cell, value);
             return;
         }
@@ -158,16 +186,16 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
         //根据指定的数据类型,转为excel中的值
         switch (style.getDataType()) {
             case "date":
-                cell.setCellValue((Date) style.getValue());
+                cell.setCellValue((Date) value);
                 break;
             case "int":
-                cell.setCellValue(StringUtils.toInt(style.getValue()));
+                cell.setCellValue(StringUtils.toInt(value));
                 break;
             case "double":
-                cell.setCellValue(StringUtils.toDouble(style.getValue()));
+                cell.setCellValue(StringUtils.toDouble(value));
                 break;
             default:
-                cell.setCellValue(String.valueOf(style.getValue()));
+                cell.setCellValue(String.valueOf(value));
                 break;
         }
     }
@@ -187,8 +215,6 @@ public class CommonExcelWriterCallBack implements ExcelWriterCallBack {
 
     /**
      * 编译需要合并的列
-     *
-     * @throws Exception
      */
     protected void prepareMerges() {
         //解析表头与列号
